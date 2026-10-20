@@ -34,13 +34,51 @@ const showNotice = (message) => {
   noticeTimer = setTimeout(() => notice.classList.remove('show'), 3200);
 };
 
-document.querySelectorAll('.add-button').forEach((button) => {
-  button.addEventListener('click', () => {
+const closePriceMenus = (except = null) => {
+  document.querySelectorAll('.price-options:not([hidden])').forEach((panel) => {
+    if (panel === except) return;
+    panel.hidden = true;
+    const trigger = document.querySelector(`[aria-controls="${panel.id}"]`);
+    trigger?.setAttribute('aria-expanded', 'false');
+    trigger?.parentElement?.classList.remove('price-menu-open');
+  });
+};
+
+document.querySelectorAll('.choose-button').forEach((button) => {
+  button.addEventListener('click', (event) => {
+    event.stopPropagation();
+    const panel = document.getElementById(button.getAttribute('aria-controls'));
+    if (!panel) return;
+    const willOpen = panel.hidden;
+    closePriceMenus(panel);
+    panel.hidden = !willOpen;
+    button.setAttribute('aria-expanded', String(willOpen));
+    button.parentElement?.classList.toggle('price-menu-open', willOpen);
+  });
+});
+
+document.querySelectorAll('.price-option').forEach((button) => {
+  button.addEventListener('click', (event) => {
+    event.stopPropagation();
     const count = document.querySelector('.bag-count');
     const current = Number(count?.textContent.replace(/[^0-9]/g, '') || 0) + 1;
     if (count) count.textContent = `(${current})`;
-    showNotice(`${button.dataset.product} added to your ritual bag.`);
+    showNotice(`${button.dataset.product} · ${button.dataset.size} · ${button.dataset.price} added to your ritual bag.`);
+    const panel = button.closest('.price-options');
+    const trigger = panel && document.querySelector(`[aria-controls="${panel.id}"]`);
+    if (panel && trigger) {
+      panel.hidden = true;
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.parentElement?.classList.remove('price-menu-open');
+    }
   });
+});
+
+document.addEventListener('click', (event) => {
+  if (!event.target.closest('.product-card')) closePriceMenus();
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') closePriceMenus();
 });
 
 document.querySelector('.text-button')?.addEventListener('click', (event) => showNotice(event.currentTarget.dataset.notice));
