@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import mysql from 'mysql2/promise';
 import { findVariant } from '../shared/catalog.mjs';
+import { sendOrderConfirmation } from './email.mjs';
 
 let pool;
 let schemaReady;
@@ -29,6 +30,7 @@ const ensureSchema = async () => {
     await db.query(`
     CREATE TABLE IF NOT EXISTS yoco_orders (
       order_id VARCHAR(64) NOT NULL PRIMARY KEY,
+      reference_number VARCHAR(64) NULL UNIQUE,
       checkout_id VARCHAR(128) NULL UNIQUE,
       payment_id VARCHAR(128) NULL,
       provider_event_id VARCHAR(128) NULL,
@@ -40,12 +42,23 @@ const ensureSchema = async () => {
       delivery_address TEXT NOT NULL,
       items_json JSON NOT NULL,
       provider_mode VARCHAR(16) NULL,
+      confirmation_status VARCHAR(16) NOT NULL DEFAULT 'pending',
+      confirmation_sent_at TIMESTAMP NULL,
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       INDEX idx_yoco_orders_status (status),
       INDEX idx_yoco_orders_payment_id (payment_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
+    for (const statement of [
+      `ALTER TABLE yoco_orders ADD COLUMN reference_number VARCHAR(64) NULL UNIQUE`,
+      `ALTER TABLE yoco_orders ADD COLUMN confirmation_status VARCHAR(16) NOT NULL DEFAULT 'pending'`,
+      `ALTER TABLE yoco_orders ADD COLUMN confirmation_sent_at TIMESTAMP NULL`,
+    ]) {
+      try { await db.query(statement); } catch (error) {
+        if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
+      }
+    }
     await db.query(`
       CREATE TABLE IF NOT EXISTS yoco_webhook_events (
         event_id VARCHAR(128) NOT NULL PRIMARY KEY,
@@ -128,6 +141,43 @@ const validateInput = (body) => {
 };
 
 const newOrderId = () => `SB-${Date.now().toString(36).toUpperCase()}-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+const newReferenceNumber = () => `SBR-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`;
+
+const sendConfirmationOnce = async (orderId) => {
+  const db = getPool();
+  const [claim] = await db.execute(
+    `UPDATE yoco_orders
+     SET confirmation_status = 'sending'
+     WHERE order_id = ? AND status = 'paid' AND confirmation_status = 'pending' AND confirmation_sent_at IS NULL`,
+    [orderId],
+  );
+  if (claim.affectedRows !== 1) return;
+  try {
+    const [rows] = await db.execute(
+      `SELECT order_id, reference_number, customer_name, customer_email, amount_cents, currency, items_json
+       FROM yoco_orders WHERE order_id = ? LIMIT 1`,
+      [orderId],
+    );
+    const order = rows[0];
+    if (!order) throw new Error(`Order ${orderId} was not found while sending confirmation.`);
+    await sendOrderConfirmation({
+      orderId: order.order_id,
+      referenceNumber: order.reference_number,
+      customerName: order.customer_name,
+      customerEmail: order.customer_email,
+      amountCents: order.amount_cents,
+      currency: order.currency,
+      items: typeof order.items_json === 'string' ? JSON.parse(order.items_json) : order.items_json,
+    });
+    await db.execute(
+      `UPDATE yoco_orders SET confirmation_status = 'sent', confirmation_sent_at = CURRENT_TIMESTAMP WHERE order_id = ?`,
+      [orderId],
+    );
+  } catch (error) {
+    await db.execute(`UPDATE yoco_orders SET confirmation_status = 'failed' WHERE order_id = ?`, [orderId]);
+    throw error;
+  }
+};
 
 const createCheckout = async (req, res) => {
   if (!process.env.YOCO_SECRET_KEY) return json(res, 503, { error: 'Yoco checkout is not configured for this environment yet.' });
@@ -137,11 +187,12 @@ const createCheckout = async (req, res) => {
   if (!origin) return json(res, 400, { error: 'The checkout origin could not be determined.' });
 
   const orderId = newOrderId();
+  const referenceNumber = newReferenceNumber();
   await ensureSchema();
   await getPool().execute(
-    `INSERT INTO yoco_orders (order_id, status, amount_cents, currency, customer_name, customer_email, delivery_address, items_json)
-     VALUES (?, 'pending', ?, 'ZAR', ?, ?, ?, ?)`,
-    [orderId, input.amountCents, input.name, input.email, input.address, JSON.stringify(input.items)],
+    `INSERT INTO yoco_orders (order_id, reference_number, status, amount_cents, currency, customer_name, customer_email, delivery_address, items_json)
+     VALUES (?, ?, 'pending', ?, 'ZAR', ?, ?, ?, ?)`,
+    [orderId, referenceNumber, input.amountCents, input.name, input.email, input.address, JSON.stringify(input.items)],
   );
 
   const checkoutPayload = {
@@ -150,7 +201,7 @@ const createCheckout = async (req, res) => {
     cancelUrl: `${origin}/?payment=cancelled&order_id=${encodeURIComponent(orderId)}`,
     successUrl: `${origin}/?payment=returning&order_id=${encodeURIComponent(orderId)}`,
     failureUrl: `${origin}/?payment=failed&order_id=${encodeURIComponent(orderId)}`,
-    metadata: { orderId, customerEmail: input.email },
+    metadata: { orderId, referenceNumber, customerEmail: input.email },
     subtotalAmount: input.amountCents,
     lineItems: input.items.map((item) => ({
       displayName: `${item.product} — ${item.size}`,
@@ -183,7 +234,7 @@ const createCheckout = async (req, res) => {
     `UPDATE yoco_orders SET checkout_id = ?, provider_mode = ? WHERE order_id = ?`,
     [result.id || null, processingMode, orderId],
   );
-  return json(res, 200, { redirectUrl: result.redirectUrl, orderId, processingMode });
+  return json(res, 200, { redirectUrl: result.redirectUrl, orderId, referenceNumber, processingMode });
 };
 
 const getOrderStatus = async (req, res, url) => {
@@ -191,13 +242,14 @@ const getOrderStatus = async (req, res, url) => {
   if (!orderId) return json(res, 400, { error: 'Missing order ID.' });
   await ensureSchema();
   const [rows] = await getPool().execute(
-    `SELECT order_id, checkout_id, payment_id, status, amount_cents, currency, provider_mode, created_at, updated_at
+    `SELECT order_id, reference_number, checkout_id, payment_id, status, amount_cents, currency, provider_mode, created_at, updated_at
      FROM yoco_orders WHERE order_id = ? LIMIT 1`,
     [orderId],
   );
   if (!rows[0]) return json(res, 404, { error: 'Order not found.' });
   return json(res, 200, {
     orderId: rows[0].order_id,
+    referenceNumber: rows[0].reference_number,
     checkoutId: rows[0].checkout_id,
     paymentId: rows[0].payment_id,
     status: rows[0].status,
@@ -280,10 +332,20 @@ const handleWebhook = async (req, res) => {
       return json(res, 200, { received: true });
     }
     await connection.execute(
-      `UPDATE yoco_orders SET status = ?, payment_id = ?, provider_event_id = ?, provider_mode = ? WHERE order_id = ?`,
-      [expectedStatus, payment.id, eventId, payment.mode || null, orderId],
+      `UPDATE yoco_orders
+       SET status = ?, payment_id = ?, provider_event_id = ?, provider_mode = ?,
+           confirmation_status = CASE WHEN ? = 'paid' AND confirmation_sent_at IS NULL THEN 'pending' ELSE confirmation_status END
+       WHERE order_id = ?`,
+      [expectedStatus, payment.id, eventId, payment.mode || null, expectedStatus, orderId],
     );
     await connection.commit();
+    if (expectedStatus === 'paid') {
+      try {
+        await sendConfirmationOnce(orderId);
+      } catch (error) {
+        console.error('Order confirmation email failed:', error.message);
+      }
+    }
     return json(res, 200, { received: true });
   } catch (error) {
     await connection.rollback();
