@@ -41,6 +41,7 @@ const checkoutTotal = document.querySelector('#checkout-total');
 const bagCount = document.querySelector('.bag-count');
 const checkoutForm = document.querySelector('#checkout-form');
 const checkoutMessage = document.querySelector('.checkout-message');
+const checkoutSubmit = checkoutForm?.querySelector('.checkout-submit');
 
 const moneyValue = (price) => Number(String(price).replace(/[^0-9]/g, '')) || 0;
 const formatMoney = (amount) => `R${amount.toLocaleString('en-ZA')}`;
@@ -94,13 +95,43 @@ checkoutItems?.addEventListener('click', (event) => {
   if (action === 'remove' || item.quantity <= 0) cart.splice(index, 1);
   renderCart();
 });
-checkoutForm?.addEventListener('submit', (event) => {
+checkoutForm?.addEventListener('submit', async (event) => {
   event.preventDefault();
   if (!cart.length) {
     if (checkoutMessage) checkoutMessage.textContent = 'Choose a product size before finalising your purchase.';
     return;
   }
-  if (checkoutMessage) checkoutMessage.textContent = 'Your order details are ready. Yoco payment handoff will activate when the payment connection is enabled.';
+  const formData = new FormData(checkoutForm);
+  const customer = {
+    name: formData.get('name'),
+    email: formData.get('email'),
+    address: formData.get('address'),
+  };
+  if (checkoutSubmit) {
+    checkoutSubmit.disabled = true;
+    checkoutSubmit.classList.add('is-loading');
+  }
+  if (checkoutMessage) checkoutMessage.textContent = 'Opening secure Yoco checkout…';
+  try {
+    const response = await fetch('/api/yoco/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customer,
+        origin: window.location.origin,
+        items: cart.map(({ product, size, quantity }) => ({ product, size, quantity })),
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !result.redirectUrl) throw new Error(result.error || 'Yoco checkout could not be started.');
+    window.location.assign(result.redirectUrl);
+  } catch (error) {
+    if (checkoutMessage) checkoutMessage.textContent = error.message;
+    if (checkoutSubmit) {
+      checkoutSubmit.disabled = false;
+      checkoutSubmit.classList.remove('is-loading');
+    }
+  }
 });
 
 const closePriceMenus = (except = null) => {
@@ -154,8 +185,6 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-document.querySelector('.text-button')?.addEventListener('click', (event) => showNotice(event.currentTarget.dataset.notice));
-
 document.querySelector('#newsletter-form')?.addEventListener('submit', (event) => {
   event.preventDefault();
   const input = document.querySelector('#email');
@@ -174,3 +203,19 @@ document.querySelectorAll('.desktop-nav a').forEach((link) => link.addEventListe
   header.classList.remove('menu-open');
   menuToggle?.setAttribute('aria-expanded', 'false');
 }));
+
+const paymentState = new URLSearchParams(window.location.search).get('payment');
+const returnedOrderId = new URLSearchParams(window.location.search).get('order_id');
+if (paymentState === 'cancelled') showNotice('Checkout cancelled. Your ritual bag is still here.');
+if (paymentState === 'failed') showNotice('Yoco could not complete that payment. Your ritual bag is still here.');
+if (paymentState === 'returning' && returnedOrderId) {
+  showNotice('Payment return received. We are confirming your order securely.');
+  fetch(`/api/yoco/order-status?order_id=${encodeURIComponent(returnedOrderId)}`)
+    .then((response) => response.ok ? response.json() : null)
+    .then((order) => {
+      if (!order) return;
+      if (order.status === 'paid') showNotice('Payment confirmed. Your SHEABLISS ritual is being prepared.');
+      else if (order.status === 'failed') showNotice('Yoco marked the payment as unsuccessful. Your ritual bag is still here.');
+    })
+    .catch(() => {});
+}

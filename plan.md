@@ -21,7 +21,10 @@ A single-page editorial storefront for SHEABLISS ORGANICS, an East African-inspi
 - Plain Vite + React + TypeScript-style JSX avoided in favor of a lightweight single-file vanilla app to keep the site dependency-light and easy to preview.
 - `index.html` contains semantic sections and data attributes; `src/styles.css` contains all styling, responsive rules, texture patterns, and reduced-motion handling; `src/main.js` contains small interaction helpers and cart/newsletter feedback states.
 - `public/assets/` stores the supplied video and generated editorial imagery. `public/manus-routes.json` declares `/`.
-- No backend, login, or database is needed for this static editorial storefront.
+- The storefront keeps the existing lightweight Vite frontend, while Yoco checkout is handled by a small Node server adapter. The browser sends the selected cart and delivery details to `/api/yoco/create-checkout`; the server validates product/price combinations against a shared catalog, calculates the amount in ZAR cents, creates a hosted Yoco Checkout session, and redirects the customer to the returned Yoco URL. The server never exposes the Yoco secret key.
+- Yoco payment notifications are received at `/api/yoco/webhook`, verified against the raw request body, webhook ID, timestamp, and signed header, then persisted idempotently in the managed MySQL database. The payment return page is informational only; order status is granted from the verified webhook, not from query parameters.
+- Yoco webhook subscriptions are provider-account configuration. The Development endpoint is ready, but the owner must register it in Yoco and save the one-time `whsec_...` signing secret through the protected environment input; Production requires the same step against the published domain.
+- `server/yoco.mjs` owns provider calls, request validation, webhook verification, and order persistence. `shared/catalog.mjs` is the server/client-safe source of product variants and prices. `server.mjs` serves the built frontend and API in production; `vite.config.js` mounts the same API handler in Preview. A committed Dockerfile and deploy declaration make the server-backed site publishable.
 - The dev server serves on port 3000; `npm run dev -- --host 0.0.0.0` is the preview command. The production build uses Vite and outputs `dist/`.
 
 ## Information architecture
@@ -37,6 +40,10 @@ A single-page editorial storefront for SHEABLISS ORGANICS, an East African-inspi
 - `index.html` — semantic page shell, metadata, page sections.
 - `src/styles.css` — design tokens, layout, responsive behavior, animation.
 - `src/main.js` — scroll reveal, hero parallax, cart notice, newsletter form behavior, nav toggle.
+- `shared/catalog.mjs` — canonical product variants and ZAR prices used to validate checkout totals.
+- `server/yoco.mjs` — Yoco Checkout API, signed webhook verification, and managed-database order updates.
+- `server.mjs` — production HTTP server for the built Vite frontend and Yoco API routes.
+- `Dockerfile` — production install, build, and server entrypoint contract.
 - `public/assets/` — generated stills and supplied video.
 - `public/manus-routes.json` — route manifest for the managed preview.
 - `package.json`, `vite.config.js`, `app.config.ts` — tooling and project metadata.
