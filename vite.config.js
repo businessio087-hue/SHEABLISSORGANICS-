@@ -30,4 +30,12 @@ export default defineConfig({
     port: 3000,
     strictPort: true,
   },
+  build: {
+    rollupOptions: {
+      input: {
+        main: new URL('./index.html', import.meta.url).pathname,
+        cookies: new URL('./cookies.html', import.meta.url).pathname,
+      },
+    },
+  },
 });

@@ -1,5 +1,18 @@
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+const cookieConsent = document.querySelector('#cookie-consent');
+const acceptCookies = document.querySelector('#accept-cookies');
+const cookieConsentKey = 'sheabliss-cookies-accepted';
+try {
+  if (cookieConsent && window.localStorage.getItem(cookieConsentKey) !== 'true') cookieConsent.hidden = false;
+} catch {
+  if (cookieConsent) cookieConsent.hidden = false;
+}
+acceptCookies?.addEventListener('click', () => {
+  try { window.localStorage.setItem(cookieConsentKey, 'true'); } catch { /* consent still applies for this view */ }
+  if (cookieConsent) cookieConsent.hidden = true;
+});
+
 const revealItems = document.querySelectorAll('.reveal');
 if ('IntersectionObserver' in window && !prefersReducedMotion) {
   const revealObserver = new IntersectionObserver((entries, observer) => {
