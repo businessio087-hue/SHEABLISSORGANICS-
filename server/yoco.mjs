@@ -178,11 +178,12 @@ const createCheckout = async (req, res) => {
     return json(res, 502, { error: 'Yoco could not start the secure checkout. Please try again.' });
   }
 
+  const processingMode = result.processingMode || (process.env.YOCO_SECRET_KEY.startsWith('sk_live_') ? 'live' : 'test');
   await getPool().execute(
     `UPDATE yoco_orders SET checkout_id = ?, provider_mode = ? WHERE order_id = ?`,
-    [result.id || null, result.processingMode || 'test', orderId],
+    [result.id || null, processingMode, orderId],
   );
-  return json(res, 200, { redirectUrl: result.redirectUrl, orderId, processingMode: result.processingMode || 'test' });
+  return json(res, 200, { redirectUrl: result.redirectUrl, orderId, processingMode });
 };
 
 const getOrderStatus = async (req, res, url) => {
