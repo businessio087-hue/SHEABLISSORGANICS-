@@ -47,18 +47,19 @@ export const sendOrderConfirmation = async ({ orderId, referenceNumber, customer
   });
 };
 
-export const sendOwnerOrderNotification = async ({ orderId, referenceNumber, customerName, customerEmail, deliveryAddress, amountCents, currency, items }) => {
+export const sendOwnerOrderNotification = async ({ orderId, referenceNumber, customerName, customerEmail, customerPhone, deliveryAddress, amountCents, currency, items }) => {
   const transport = getTransport();
   const inbox = process.env.GMAIL_SMTP_USER;
   const { safeOrderId, safeReferenceNumber, itemRows, textItems, total } = orderParts({ orderId, referenceNumber, amountCents, currency, items });
   const safeName = escapeHtml(customerName);
   const safeEmail = escapeHtml(customerEmail);
+  const safePhone = escapeHtml(customerPhone);
   const safeAddress = escapeHtml(deliveryAddress);
   await transport.sendMail({
     from: `SHEABLISS ORGANICS <${inbox}>`,
     to: inbox,
     subject: `New paid order ${orderId} · ${customerName}`,
-    text: `New SHEABLISS ORGANICS order received.\n\nCustomer: ${customerName}\nEmail: ${customerEmail}\nDelivery address:\n${deliveryAddress}\n\nOrder number: ${orderId}\nReference: ${referenceNumber || orderId}\nTotal: ${total}\n\n${textItems}\n\nPayment was verified by the Yoco webhook.`,
-    html: `<div style="background:#f6efe3;padding:32px 16px;font-family:Arial,sans-serif;color:#3b2419"><div style="max-width:600px;margin:0 auto;background:#fffaf3;padding:32px;border:1px solid #eadfce"><p style="letter-spacing:.16em;text-transform:uppercase;font-size:11px;color:#9b4b32">SHEABLISS ORGANICS / NEW ORDER</p><h1 style="font-family:Georgia,serif;font-size:30px;font-weight:400;margin:24px 0 12px">A paid order is ready.</h1><p><strong>Customer:</strong> ${safeName}<br><strong>Email:</strong> ${safeEmail}<br><strong>Delivery address:</strong><br>${safeAddress}</p><p style="font-size:13px;color:#765f50"><strong>Order number:</strong> ${safeOrderId}<br><strong>Reference:</strong> ${safeReferenceNumber}</p><table style="width:100%;border-collapse:collapse;margin:24px 0"><tbody>${itemRows}</tbody><tfoot><tr><td style="padding-top:16px;font-weight:bold">Total</td><td style="padding-top:16px;text-align:right;font-weight:bold">${escapeHtml(total)}</td></tr></tfoot></table><p>Payment was verified by the Yoco webhook.</p></div></div>`,
+    text: `New SHEABLISS ORGANICS order received.\n\nCustomer: ${customerName}\nEmail: ${customerEmail}\nPhone: ${customerPhone}\nDelivery address:\n${deliveryAddress}\n\nOrder number: ${orderId}\nReference: ${referenceNumber || orderId}\nTotal: ${total}\n\n${textItems}\n\nPayment was verified by the Yoco webhook.`,
+    html: `<div style="background:#f6efe3;padding:32px 16px;font-family:Arial,sans-serif;color:#3b2419"><div style="max-width:600px;margin:0 auto;background:#fffaf3;padding:32px;border:1px solid #eadfce"><p style="letter-spacing:.16em;text-transform:uppercase;font-size:11px;color:#9b4b32">SHEABLISS ORGANICS / NEW ORDER</p><h1 style="font-family:Georgia,serif;font-size:30px;font-weight:400;margin:24px 0 12px">A paid order is ready.</h1><p><strong>Customer:</strong> ${safeName}<br><strong>Email:</strong> ${safeEmail}<br><strong>Phone:</strong> ${safePhone}<br><strong>Delivery address:</strong><br>${safeAddress}</p><p style="font-size:13px;color:#765f50"><strong>Order number:</strong> ${safeOrderId}<br><strong>Reference:</strong> ${safeReferenceNumber}</p><table style="width:100%;border-collapse:collapse;margin:24px 0"><tbody>${itemRows}</tbody><tfoot><tr><td style="padding-top:16px;font-weight:bold">Total</td><td style="padding-top:16px;text-align:right;font-weight:bold">${escapeHtml(total)}</td></tr></tfoot></table><p>Payment was verified by the Yoco webhook.</p></div></div>`,
   });
 };

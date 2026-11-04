@@ -39,6 +39,7 @@ const ensureSchema = async () => {
       currency CHAR(3) NOT NULL DEFAULT 'ZAR',
       customer_name VARCHAR(255) NOT NULL,
       customer_email VARCHAR(320) NOT NULL,
+      customer_phone VARCHAR(40) NULL,
       delivery_address TEXT NOT NULL,
       items_json JSON NOT NULL,
       provider_mode VARCHAR(16) NULL,
@@ -58,6 +59,7 @@ const ensureSchema = async () => {
       `ALTER TABLE yoco_orders ADD COLUMN confirmation_sent_at TIMESTAMP NULL`,
       `ALTER TABLE yoco_orders ADD COLUMN owner_notification_status VARCHAR(16) NOT NULL DEFAULT 'pending'`,
       `ALTER TABLE yoco_orders ADD COLUMN owner_notification_sent_at TIMESTAMP NULL`,
+      `ALTER TABLE yoco_orders ADD COLUMN customer_phone VARCHAR(40) NULL`,
     ]) {
       try { await db.query(statement); } catch (error) {
         if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
@@ -110,9 +112,10 @@ const validateInput = (body) => {
   const customer = body?.customer || {};
   const name = clean(customer.name, 255);
   const email = clean(customer.email, 320).toLowerCase();
+  const phone = clean(customer.phone, 40);
   const address = clean(customer.address, 2000);
-  if (!name || !address || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    throw Object.assign(new Error('Please provide a valid name, email, and delivery address.'), { statusCode: 400 });
+  if (!name || !phone || !address || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !/^\+?[0-9()\-\s]{7,39}$/.test(phone)) {
+    throw Object.assign(new Error('Please provide a valid name, email, phone number, and delivery address.'), { statusCode: 400 });
   }
   if (!Array.isArray(body?.items) || body.items.length < 1 || body.items.length > 20) {
     throw Object.assign(new Error('Choose at least one product before starting payment.'), { statusCode: 400 });
@@ -141,7 +144,7 @@ const validateInput = (body) => {
   if (amountCents < 200) {
     throw Object.assign(new Error('Yoco requires a minimum payment of R2.00.'), { statusCode: 400 });
   }
-  return { name, email, address, items, amountCents };
+  return { name, email, phone, address, items, amountCents };
 };
 
 const newOrderId = () => `SB-${Date.now().toString(36).toUpperCase()}-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
@@ -158,7 +161,7 @@ const sendConfirmationOnce = async (orderId) => {
   if (claim.affectedRows !== 1) return;
   try {
     const [rows] = await db.execute(
-      `SELECT order_id, reference_number, customer_name, customer_email, amount_cents, currency, items_json
+      `SELECT order_id, reference_number, customer_name, customer_email, customer_phone, amount_cents, currency, items_json
        FROM yoco_orders WHERE order_id = ? LIMIT 1`,
       [orderId],
     );
@@ -169,6 +172,7 @@ const sendConfirmationOnce = async (orderId) => {
       referenceNumber: order.reference_number,
       customerName: order.customer_name,
       customerEmail: order.customer_email,
+      customerPhone: order.customer_phone,
       amountCents: order.amount_cents,
       currency: order.currency,
       items: typeof order.items_json === 'string' ? JSON.parse(order.items_json) : order.items_json,
@@ -194,7 +198,7 @@ const sendOwnerNotificationOnce = async (orderId) => {
   if (claim.affectedRows !== 1) return;
   try {
     const [rows] = await db.execute(
-      `SELECT order_id, reference_number, customer_name, customer_email, delivery_address, amount_cents, currency, items_json
+      `SELECT order_id, reference_number, customer_name, customer_email, customer_phone, delivery_address, amount_cents, currency, items_json
        FROM yoco_orders WHERE order_id = ? LIMIT 1`,
       [orderId],
     );
@@ -205,6 +209,7 @@ const sendOwnerNotificationOnce = async (orderId) => {
       referenceNumber: order.reference_number,
       customerName: order.customer_name,
       customerEmail: order.customer_email,
+      customerPhone: order.customer_phone,
       deliveryAddress: order.delivery_address,
       amountCents: order.amount_cents,
       currency: order.currency,
@@ -231,9 +236,9 @@ const createCheckout = async (req, res) => {
   const referenceNumber = newReferenceNumber();
   await ensureSchema();
   await getPool().execute(
-    `INSERT INTO yoco_orders (order_id, reference_number, status, amount_cents, currency, customer_name, customer_email, delivery_address, items_json)
-     VALUES (?, ?, 'pending', ?, 'ZAR', ?, ?, ?, ?)`,
-    [orderId, referenceNumber, input.amountCents, input.name, input.email, input.address, JSON.stringify(input.items)],
+    `INSERT INTO yoco_orders (order_id, reference_number, status, amount_cents, currency, customer_name, customer_email, customer_phone, delivery_address, items_json)
+     VALUES (?, ?, 'pending', ?, 'ZAR', ?, ?, ?, ?, ?)`,
+    [orderId, referenceNumber, input.amountCents, input.name, input.email, input.phone, input.address, JSON.stringify(input.items)],
   );
 
   const checkoutPayload = {

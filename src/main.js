@@ -126,6 +126,7 @@ checkoutForm?.addEventListener('submit', async (event) => {
   const customer = {
     name: formData.get('name'),
     email: formData.get('email'),
+    phone: formData.get('phone'),
     address: formData.get('address'),
   };
   if (checkoutSubmit) {
