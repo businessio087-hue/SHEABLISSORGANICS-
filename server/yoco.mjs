@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import mysql from 'mysql2/promise';
 import { findVariant } from '../shared/catalog.mjs';
-import { sendOrderConfirmation } from './email.mjs';
+import { sendOrderConfirmation, sendOwnerOrderNotification } from './email.mjs';
 
 let pool;
 let schemaReady;
@@ -44,6 +44,8 @@ const ensureSchema = async () => {
       provider_mode VARCHAR(16) NULL,
       confirmation_status VARCHAR(16) NOT NULL DEFAULT 'pending',
       confirmation_sent_at TIMESTAMP NULL,
+      owner_notification_status VARCHAR(16) NOT NULL DEFAULT 'pending',
+      owner_notification_sent_at TIMESTAMP NULL,
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       INDEX idx_yoco_orders_status (status),
@@ -54,6 +56,8 @@ const ensureSchema = async () => {
       `ALTER TABLE yoco_orders ADD COLUMN reference_number VARCHAR(64) NULL UNIQUE`,
       `ALTER TABLE yoco_orders ADD COLUMN confirmation_status VARCHAR(16) NOT NULL DEFAULT 'pending'`,
       `ALTER TABLE yoco_orders ADD COLUMN confirmation_sent_at TIMESTAMP NULL`,
+      `ALTER TABLE yoco_orders ADD COLUMN owner_notification_status VARCHAR(16) NOT NULL DEFAULT 'pending'`,
+      `ALTER TABLE yoco_orders ADD COLUMN owner_notification_sent_at TIMESTAMP NULL`,
     ]) {
       try { await db.query(statement); } catch (error) {
         if (error?.code !== 'ER_DUP_FIELDNAME') throw error;
@@ -175,6 +179,43 @@ const sendConfirmationOnce = async (orderId) => {
     );
   } catch (error) {
     await db.execute(`UPDATE yoco_orders SET confirmation_status = 'failed' WHERE order_id = ?`, [orderId]);
+    throw error;
+  }
+};
+
+const sendOwnerNotificationOnce = async (orderId) => {
+  const db = getPool();
+  const [claim] = await db.execute(
+    `UPDATE yoco_orders
+     SET owner_notification_status = 'sending'
+     WHERE order_id = ? AND status = 'paid' AND owner_notification_status = 'pending' AND owner_notification_sent_at IS NULL`,
+    [orderId],
+  );
+  if (claim.affectedRows !== 1) return;
+  try {
+    const [rows] = await db.execute(
+      `SELECT order_id, reference_number, customer_name, customer_email, delivery_address, amount_cents, currency, items_json
+       FROM yoco_orders WHERE order_id = ? LIMIT 1`,
+      [orderId],
+    );
+    const order = rows[0];
+    if (!order) throw new Error(`Order ${orderId} was not found while sending the internal notification.`);
+    await sendOwnerOrderNotification({
+      orderId: order.order_id,
+      referenceNumber: order.reference_number,
+      customerName: order.customer_name,
+      customerEmail: order.customer_email,
+      deliveryAddress: order.delivery_address,
+      amountCents: order.amount_cents,
+      currency: order.currency,
+      items: typeof order.items_json === 'string' ? JSON.parse(order.items_json) : order.items_json,
+    });
+    await db.execute(
+      `UPDATE yoco_orders SET owner_notification_status = 'sent', owner_notification_sent_at = CURRENT_TIMESTAMP WHERE order_id = ?`,
+      [orderId],
+    );
+  } catch (error) {
+    await db.execute(`UPDATE yoco_orders SET owner_notification_status = 'failed' WHERE order_id = ?`, [orderId]);
     throw error;
   }
 };
@@ -334,9 +375,10 @@ const handleWebhook = async (req, res) => {
     await connection.execute(
       `UPDATE yoco_orders
        SET status = ?, payment_id = ?, provider_event_id = ?, provider_mode = ?,
-           confirmation_status = CASE WHEN ? = 'paid' AND confirmation_sent_at IS NULL THEN 'pending' ELSE confirmation_status END
+           confirmation_status = CASE WHEN ? = 'paid' AND confirmation_sent_at IS NULL THEN 'pending' ELSE confirmation_status END,
+           owner_notification_status = CASE WHEN ? = 'paid' AND owner_notification_sent_at IS NULL THEN 'pending' ELSE owner_notification_status END
        WHERE order_id = ?`,
-      [expectedStatus, payment.id, eventId, payment.mode || null, expectedStatus, orderId],
+      [expectedStatus, payment.id, eventId, payment.mode || null, expectedStatus, expectedStatus, orderId],
     );
     await connection.commit();
     if (expectedStatus === 'paid') {
@@ -344,6 +386,11 @@ const handleWebhook = async (req, res) => {
         await sendConfirmationOnce(orderId);
       } catch (error) {
         console.error('Order confirmation email failed:', error.message);
+      }
+      try {
+        await sendOwnerNotificationOnce(orderId);
+      } catch (error) {
+        console.error('Internal order notification email failed:', error.message);
       }
     }
     return json(res, 200, { received: true });
