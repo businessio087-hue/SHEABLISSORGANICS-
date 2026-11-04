@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "main": "server.mjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "localize:assets": "node scripts/localize-manus-assets.mjs",
+    "start": "node server.mjs",
     "preview": "vite preview"
   },
   "devDependencies": {
