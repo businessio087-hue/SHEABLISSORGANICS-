@@ -1,5 +1,13 @@
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+const finishPreloader = () => {
+  document.body.classList.remove('is-loading');
+  document.body.classList.add('page-ready');
+  window.setTimeout(() => document.querySelector('#preloader')?.remove(), prefersReducedMotion ? 40 : 980);
+};
+if (document.readyState === 'complete') finishPreloader();
+else window.addEventListener('load', finishPreloader, { once: true });
+
 const cookieConsent = document.querySelector('#cookie-consent');
 const acceptCookies = document.querySelector('#accept-cookies');
 const cookieConsentKey = 'sheabliss-cookies-accepted';
