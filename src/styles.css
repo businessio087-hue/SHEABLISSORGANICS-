@@ -211,6 +211,8 @@ h1 span, h2 i { font-style: italic; font-weight: 300; }
 .figure-portrait img { aspect-ratio: 4 / 5; }
 .figure-raffia { padding-bottom: 5vw; }
 .figure-raffia img { aspect-ratio: 1 / 1; }
+.figure-iteso { padding-bottom: 5vw; }
+.figure-iteso img { aspect-ratio: 2 / 3; }
 .figure-mat { padding-top: 3vw; }
 .figure-mat img { aspect-ratio: 4 / 5; }
 .lookbook-figure figcaption { font-size: 9px; text-transform: uppercase; letter-spacing: .16em; padding-top: 12px; color: var(--ink-soft); }
@@ -283,7 +285,7 @@ h1 span, h2 i { font-style: italic; font-weight: 300; }
   .video-break { grid-template-columns: 1fr; gap: 46px; padding: 82px 20px 90px; }.video-frame video { aspect-ratio: 4 / 3; }
   .shop { padding: 90px 20px 110px; }.section-heading { display: block; padding-bottom: 28px; margin-bottom: 35px; }.heading-side { margin-top: 25px; }.products-grid { gap: 12px; }.product-card { min-height: 310px; padding: 16px 14px 15px; }.product-card::after { inset: 8px; }.product-index { top: 16px; left: 14px; font-size: 8px; }.product-object-jar { transform: scale(.78); margin-bottom: 13px; }.product-object-bottle { transform: scale(.75); margin-bottom: 5px; }.product-object-tin { transform: scale(.77); margin-bottom: 18px; }.product-object-bowl { transform: scale(.77); margin-bottom: 18px; }.product-meta { display: block; }.product-meta h3 { font-size: 17px; margin-bottom: 4px; }.product-meta span { font-size: 10px; }.add-button { font-size: 8px; }
   .ingredients { padding: 90px 20px 28px; }.ingredients-head { display: block; }.ingredients-head h2 { margin-bottom: 56px; }.ingredient { padding: 22px 15px 28px 0; min-height: 245px; }.ingredient + .ingredient { padding-left: 15px; }.ingredient-icon { width: 43px; height: 43px; margin-bottom: 29px; font-size: 21px; }.ingredient h3 { font-size: 24px; }.ingredient p { font-size: 12px; }.ingredient-num { top: 27px; right: 11px; }
-  .lookbook { padding: 90px 20px 105px; }.lookbook-head { display: block; margin-bottom: 55px; }.lookbook-head > p:last-child { margin-top: 25px; }.lookbook-grid { grid-template-columns: 1fr 1fr; gap: 14px; }.figure-portrait, .figure-raffia, .figure-mat { padding-top: 0; padding-bottom: 0; }.lookbook-pullquote { grid-column: 1 / -1; padding: 40px 0 0; }
+  .lookbook { padding: 90px 20px 105px; }.lookbook-head { display: block; margin-bottom: 55px; }.lookbook-head > p:last-child { margin-top: 25px; }.lookbook-grid { grid-template-columns: 1fr 1fr; gap: 14px; }.figure-portrait, .figure-raffia, .figure-iteso, .figure-mat { padding-top: 0; padding-bottom: 0; }.lookbook-pullquote { grid-column: 1 / -1; padding: 40px 0 0; }
   .testimonials { padding: 80px 20px 90px; }.testimonials-head { display: block; padding-bottom: 30px; }.testimonial-grid { grid-template-columns: 1fr; gap: 12px; }.testimonial { min-height: 180px; }
   .checkout-modal { padding: 0; align-items: end; }.checkout-panel { max-height: 92vh; }.checkout-head { padding: 27px 20px 23px; }.checkout-content { padding: 23px 20px 28px; }.checkout-fields { grid-template-columns: 1fr; }.checkout-field-wide { grid-column: auto; }.checkout-item { grid-template-columns: 1fr auto; }.checkout-item-price { grid-column: 1; }.checkout-remove { grid-column: 2; grid-row: 1; }.checkout-quantity { grid-column: 2; grid-row: 2; }
   .site-footer { padding: 0 20px 22px; }.woven-divider { margin: 0 -20px; }.footer-main { grid-template-columns: 1fr; gap: 50px; padding: 82px 0 90px; }.footer-bottom { grid-template-columns: 1fr; gap: 22px; }.footer-links { order: 0; flex-wrap: wrap; }.copyright { justify-self: start; }
