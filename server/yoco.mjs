@@ -113,9 +113,14 @@ const validateInput = (body) => {
   const name = clean(customer.name, 255);
   const email = clean(customer.email, 320).toLowerCase();
   const phone = clean(customer.phone, 40);
-  const address = clean(customer.address, 2000);
-  if (!name || !phone || !address || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !/^\+?[0-9()\-\s]{7,39}$/.test(phone)) {
-    throw Object.assign(new Error('Please provide a valid name, email, phone number, and delivery address.'), { statusCode: 400 });
+  const streetAddress = clean(customer.streetAddress, 255);
+  const suburb = clean(customer.suburb, 120);
+  const postalCode = clean(customer.postalCode, 10);
+  const buildingType = clean(customer.buildingType, 80);
+  const companyName = clean(customer.companyName, 160);
+  const address = [companyName, buildingType, streetAddress, `${suburb}, ${postalCode}`].filter(Boolean).join('\n');
+  if (!name || !phone || !streetAddress || !suburb || !postalCode || !buildingType || !/^[0-9]{4}$/.test(postalCode) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !/^\+?[0-9()\-\s]{7,39}$/.test(phone)) {
+    throw Object.assign(new Error('Please provide a valid name, email, phone number, and complete delivery address.'), { statusCode: 400 });
   }
   if (!Array.isArray(body?.items) || body.items.length < 1 || body.items.length > 20) {
     throw Object.assign(new Error('Choose at least one product before starting payment.'), { statusCode: 400 });
@@ -144,7 +149,7 @@ const validateInput = (body) => {
   if (amountCents < 200) {
     throw Object.assign(new Error('Yoco requires a minimum payment of R2.00.'), { statusCode: 400 });
   }
-  return { name, email, phone, address, items, amountCents };
+  return { name, email, phone, address, addressDetails: { streetAddress, suburb, postalCode, buildingType, companyName }, items, amountCents };
 };
 
 const newOrderId = () => `SB-${Date.now().toString(36).toUpperCase()}-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;

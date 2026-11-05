@@ -123,11 +123,24 @@ checkoutForm?.addEventListener('submit', async (event) => {
     return;
   }
   const formData = new FormData(checkoutForm);
+  const addressDetails = {
+    streetAddress: formData.get('streetAddress'),
+    suburb: formData.get('suburb'),
+    postalCode: formData.get('postalCode'),
+    buildingType: formData.get('buildingType'),
+    companyName: formData.get('companyName'),
+  };
   const customer = {
     name: formData.get('name'),
     email: formData.get('email'),
     phone: formData.get('phone'),
-    address: formData.get('address'),
+    ...addressDetails,
+    address: [
+      addressDetails.companyName,
+      addressDetails.buildingType,
+      addressDetails.streetAddress,
+      `${addressDetails.suburb}, ${addressDetails.postalCode}`,
+    ].filter(Boolean).join('\n'),
   };
   if (checkoutSubmit) {
     checkoutSubmit.disabled = true;

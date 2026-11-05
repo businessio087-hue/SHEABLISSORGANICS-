@@ -88,8 +88,8 @@ button { cursor: pointer; }
 .checkout-kicker { margin: 0 0 16px; text-transform: uppercase; letter-spacing: .17em; font-size: 10px; color: var(--terracotta-deep); }
 .checkout-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .checkout-fields label { display: grid; gap: 6px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
-.checkout-fields input, .checkout-fields textarea { width: 100%; border: 1px solid var(--line); background: rgba(255,255,255,.18); color: var(--espresso); padding: 11px 12px; outline: none; resize: vertical; font-size: 14px; letter-spacing: 0; text-transform: none; }
-.checkout-fields input:focus, .checkout-fields textarea:focus { border-color: var(--terracotta); box-shadow: 0 0 0 2px rgba(185,87,62,.12); }
+.checkout-fields input, .checkout-fields textarea, .checkout-fields select { width: 100%; border: 1px solid var(--line); background: rgba(255,255,255,.18); color: var(--espresso); padding: 11px 12px; outline: none; resize: vertical; font-size: 14px; letter-spacing: 0; text-transform: none; }
+.checkout-fields input:focus, .checkout-fields textarea:focus, .checkout-fields select:focus { border-color: var(--terracotta); box-shadow: 0 0 0 2px rgba(185,87,62,.12); }
 .checkout-field-wide { grid-column: 1 / -1; }
 .checkout-payment-note { margin: 20px 0 14px; color: var(--ink-soft); font-size: 12px; line-height: 1.4; max-width: 500px; }
 .checkout-submit { width: 100%; border: 0; background: var(--terracotta); color: var(--cream); padding: 15px 18px; text-transform: uppercase; letter-spacing: .16em; font-size: 10px; display: flex; justify-content: space-between; }
