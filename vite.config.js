@@ -34,6 +34,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: new URL('./index.html', import.meta.url).pathname,
+        about: new URL('./about.html', import.meta.url).pathname,
         cookies: new URL('./cookies.html', import.meta.url).pathname,
       },
     },
