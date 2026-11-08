@@ -55,9 +55,7 @@ const showNotice = (message) => {
   noticeTimer = setTimeout(() => notice.classList.remove('show'), 3200);
 };
 
-const cart = (() => {
-  try { return JSON.parse(window.localStorage.getItem('sheabliss-cart') || '[]'); } catch { return []; }
-})();
+const cart = [];
 const checkoutModal = document.querySelector('#checkout-modal');
 const checkoutItems = document.querySelector('#checkout-items');
 const checkoutTotal = document.querySelector('#checkout-total');
@@ -71,9 +69,7 @@ const formatMoney = (amount) => `R${amount.toLocaleString('en-ZA')}`;
 const updateBagCount = () => {
   const count = cart.reduce((total, item) => total + item.quantity, 0);
   if (bagCount) bagCount.textContent = `(${count})`;
-  try { window.localStorage.setItem('sheabliss-cart', JSON.stringify(cart)); } catch { /* bag still works for this view */ }
 };
-updateBagCount();
 const renderCart = () => {
   if (!checkoutItems || !checkoutTotal) return;
   if (!cart.length) {
@@ -107,7 +103,6 @@ const closeCheckout = () => {
 };
 
 document.querySelector('#bag-button')?.addEventListener('click', openCheckout);
-if (new URLSearchParams(window.location.search).get('openBag') === '1') openCheckout();
 document.querySelectorAll('[data-close-checkout]').forEach((element) => element.addEventListener('click', closeCheckout));
 checkoutItems?.addEventListener('click', (event) => {
   const action = event.target.closest('[data-cart-action]')?.dataset.cartAction;
@@ -214,35 +209,6 @@ document.querySelectorAll('.price-option').forEach((button) => {
     }
   });
 });
-
-const addBagItem = (button) => {
-  const existing = cart.find((item) => item.product === button.dataset.product && item.size === button.dataset.size && item.price === button.dataset.price);
-  if (existing) existing.quantity += 1;
-  else cart.push({ product: button.dataset.product, size: button.dataset.size, price: button.dataset.price, amount: moneyValue(button.dataset.price), quantity: 1 });
-  updateBagCount();
-  showNotice(`${button.dataset.product} · ${button.dataset.size} · ${button.dataset.price} added to your ritual bag.`);
-};
-
-document.querySelectorAll('.add-to-bag-card').forEach((button) => button.addEventListener('click', (event) => {
-  event.stopPropagation();
-  addBagItem(button);
-}));
-
-document.querySelectorAll('.product-card[data-product-slug]').forEach((card) => {
-  const openProduct = () => { window.location.href = `/product.html?product=${encodeURIComponent(card.dataset.productSlug)}`; };
-  card.addEventListener('click', (event) => { if (!event.target.closest('button, a')) openProduct(); });
-  card.addEventListener('keydown', (event) => { if (event.key === 'Enter' && document.activeElement === card) openProduct(); });
-});
-
-const productsCarousel = document.querySelector('.products-grid');
-if (productsCarousel) {
-  let dragging = false; let moved = false; let startX = 0; let startScroll = 0;
-  productsCarousel.addEventListener('pointerdown', (event) => { if (event.target.closest('button, a')) return; dragging = true; moved = false; startX = event.clientX; startScroll = productsCarousel.scrollLeft; productsCarousel.setPointerCapture?.(event.pointerId); productsCarousel.classList.add('is-dragging'); });
-  productsCarousel.addEventListener('pointermove', (event) => { if (!dragging) return; const distance = event.clientX - startX; if (Math.abs(distance) > 5) moved = true; productsCarousel.scrollLeft = startScroll - distance; });
-  const stopDragging = (event) => { if (!dragging) return; dragging = false; productsCarousel.releasePointerCapture?.(event.pointerId); productsCarousel.classList.remove('is-dragging'); };
-  productsCarousel.addEventListener('pointerup', stopDragging); productsCarousel.addEventListener('pointercancel', stopDragging);
-  productsCarousel.addEventListener('click', (event) => { if (moved) { event.preventDefault(); event.stopPropagation(); moved = false; } }, true);
-}
 
 document.addEventListener('click', (event) => {
   if (!event.target.closest('.product-card')) closePriceMenus();

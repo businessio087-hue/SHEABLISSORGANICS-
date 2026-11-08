@@ -38,7 +38,6 @@ export default defineConfig({
         cookies: new URL('./cookies.html', import.meta.url).pathname,
         terms: new URL('./terms.html', import.meta.url).pathname,
         privacy: new URL('./privacy.html', import.meta.url).pathname,
-        product: new URL('./product.html', import.meta.url).pathname,
       },
     },
   },
