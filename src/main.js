@@ -210,6 +210,42 @@ document.querySelectorAll('.price-option').forEach((button) => {
   });
 });
 
+const addBagItem = (button) => {
+  const existing = cart.find((item) => item.product === button.dataset.product && item.size === button.dataset.size && item.price === button.dataset.price);
+  if (existing) existing.quantity += 1;
+  else cart.push({ product: button.dataset.product, size: button.dataset.size, price: button.dataset.price, amount: moneyValue(button.dataset.price), quantity: 1 });
+  updateBagCount();
+  showNotice(`${button.dataset.product} · ${button.dataset.size} · ${button.dataset.price} added to your ritual bag.`);
+};
+
+document.querySelectorAll('.add-to-bag-card').forEach((button) => button.addEventListener('click', (event) => {
+  event.stopPropagation();
+  addBagItem(button);
+}));
+
+const productsCarousel = document.querySelector('.products-grid');
+if (productsCarousel) {
+  let dragging = false; let moved = false; let startX = 0; let startScroll = 0;
+  productsCarousel.addEventListener('pointerdown', (event) => {
+    if (event.target.closest('button, a')) return;
+    dragging = true; moved = false; startX = event.clientX; startScroll = productsCarousel.scrollLeft;
+    productsCarousel.setPointerCapture?.(event.pointerId); productsCarousel.classList.add('is-dragging');
+  });
+  productsCarousel.addEventListener('pointermove', (event) => {
+    if (!dragging) return;
+    const distance = event.clientX - startX;
+    if (Math.abs(distance) > 5) moved = true;
+    productsCarousel.scrollLeft = startScroll - distance;
+  });
+  const stopDragging = (event) => {
+    if (!dragging) return;
+    dragging = false; productsCarousel.releasePointerCapture?.(event.pointerId); productsCarousel.classList.remove('is-dragging');
+  };
+  productsCarousel.addEventListener('pointerup', stopDragging);
+  productsCarousel.addEventListener('pointercancel', stopDragging);
+  productsCarousel.addEventListener('click', (event) => { if (moved) { event.preventDefault(); event.stopPropagation(); moved = false; } }, true);
+}
+
 document.addEventListener('click', (event) => {
   if (!event.target.closest('.product-card')) closePriceMenus();
 });
