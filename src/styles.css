@@ -315,3 +315,9 @@ h1 span, h2 i { font-style: italic; font-weight: 300; }
 .product-object-photo { width: 178px; height: 178px; margin-bottom: 22px; border: 3px solid rgba(43, 29, 25, .78); border-radius: 50%; overflow: hidden; background: #ead3b8; box-shadow: 12px 17px 7px rgba(43, 29, 25, .18); }
 .product-object-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
 @media (max-width: 650px) { .product-object-photo { width: 142px; height: 142px; margin-bottom: 12px; } }
+
+/* Organic Sheabutter uses its product photograph as a full-panel editorial backdrop. */
+.product-card-terracotta { background: #ead3b8; color: var(--espresso); }
+.product-card-terracotta .product-object-photo { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; margin: 0; border: 0; border-radius: 0; box-shadow: none; filter: brightness(.9) saturate(.94); transform: none; }
+.product-card-terracotta:hover .product-object-photo { transform: none; }
+.product-card-terracotta .product-object-photo img { object-fit: cover; object-position: center; }
