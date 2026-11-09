@@ -159,10 +159,10 @@ h1 span, h2 i { font-style: italic; font-weight: 300; }
 .product-card:hover { transform: translateY(-8px) rotate(-.3deg); box-shadow: 12px 18px 0 rgba(43, 29, 25, .14); }
 .product-card::before { content: ''; position: absolute; inset: 0; opacity: .18; background-image: repeating-linear-gradient(120deg, transparent 0 5px, rgba(43,29,25,.22) 6px 7px, transparent 8px 15px); mix-blend-mode: multiply; }
 .product-card::after { content: ''; position: absolute; inset: 12px; border: 1px solid rgba(43, 29, 25, .24); pointer-events: none; }
-.product-card-terracotta { background: linear-gradient(rgba(185,87,62,.73), rgba(185,87,62,.88)), url('/manus-storage/async-images/s4EoZdkHwJyK6N7Rl8j3YY/image-5.webp') center/cover; color: var(--cream); }
-.product-card-teal { background: linear-gradient(rgba(85,127,120,.74), rgba(85,127,120,.9)), url('/manus-storage/async-images/s4EoZdkHwJyK6N7Rl8j3YY/image-5.webp') 65% center/cover; color: var(--cream); }
-.product-card-mustard { background: linear-gradient(rgba(211,162,58,.78), rgba(211,162,58,.9)), url('/manus-storage/async-images/s4EoZdkHwJyK6N7Rl8j3YY/image-5.webp') 32% center/cover; color: var(--espresso); }
-.product-card-brown { background: linear-gradient(rgba(109,71,53,.78), rgba(109,71,53,.9)), url('/manus-storage/async-images/s4EoZdkHwJyK6N7Rl8j3YY/image-5.webp') 90% center/cover; color: var(--cream); }
+.product-card-terracotta { background: linear-gradient(rgba(185,87,62,.73), rgba(185,87,62,.88)), url('/assets/manus/L3M0RW9aZGtId0p5SzZON1JsOGozWVkvaW1hZ2UtNS53ZWJw.webp') center/cover; color: var(--cream); }
+.product-card-teal { background: linear-gradient(rgba(85,127,120,.74), rgba(85,127,120,.9)), url('/assets/manus/L3M0RW9aZGtId0p5SzZON1JsOGozWVkvaW1hZ2UtNS53ZWJw.webp') 65% center/cover; color: var(--cream); }
+.product-card-mustard { background: linear-gradient(rgba(211,162,58,.78), rgba(211,162,58,.9)), url('/assets/manus/L3M0RW9aZGtId0p5SzZON1JsOGozWVkvaW1hZ2UtNS53ZWJw.webp') 32% center/cover; color: var(--espresso); }
+.product-card-brown { background: linear-gradient(rgba(109,71,53,.78), rgba(109,71,53,.9)), url('/assets/manus/L3M0RW9aZGtId0p5SzZON1JsOGozWVkvaW1hZ2UtNS53ZWJw.webp') 90% center/cover; color: var(--cream); }
 .product-index { position: absolute; top: 21px; left: 20px; z-index: 2; font-size: 9px; letter-spacing: .18em; }
 .product-object { position: relative; z-index: 1; align-self: center; margin: 0 auto 30px; display: grid; place-items: center; filter: drop-shadow(12px 17px 7px rgba(43, 29, 25, .25)); transition: transform .4s ease; }
 .product-card:hover .product-object { transform: translateY(-7px) rotate(2deg); }
