@@ -339,3 +339,18 @@ h1 span, h2 i { font-style: italic; font-weight: 300; }
 .desktop-nav a { display: inline-block; transform-origin: center bottom; transition: color .25s ease, transform .25s cubic-bezier(.23, 1, .32, 1); }
 .desktop-nav a:hover, .desktop-nav a:focus-visible { color: var(--terracotta); transform: translateY(-4px) scale(1.14); }
 @media (max-width: 650px) { .desktop-nav { display: none; } }
+
+/* Product panels: visual card first, purchase information revealed underneath. */
+.product-card { overflow: hidden; justify-content: flex-end; }
+.product-card .product-info { position: relative; top: auto; left: auto; right: auto; z-index: 3; width: 100%; max-width: none; margin: 0 0 16px; opacity: 0; transform: translateY(12px); transition: opacity .28s ease, transform .28s ease; pointer-events: none; }
+.product-card .product-meta, .product-card .product-starting-price, .product-card .add-to-bag-card { opacity: 0; transform: translateY(12px); transition: opacity .28s ease, transform .28s ease; }
+.product-card:hover .product-info, .product-card:focus .product-info, .product-card:focus-within .product-info,
+.product-card:hover .product-meta, .product-card:focus .product-meta, .product-card:focus-within .product-meta,
+.product-card:hover .product-starting-price, .product-card:focus .product-starting-price, .product-card:focus-within .product-starting-price,
+.product-card:hover .add-to-bag-card, .product-card:focus .add-to-bag-card, .product-card:focus-within .add-to-bag-card { opacity: 1; transform: translateY(0); }
+.product-card:hover .product-info, .product-card:focus .product-info, .product-card:focus-within .product-info,
+.product-card:hover .add-to-bag-card, .product-card:focus .add-to-bag-card, .product-card:focus-within .add-to-bag-card { pointer-events: auto; }
+@media (max-width: 650px) {
+  .product-card { min-height: 470px; overflow: hidden; }
+  .product-card .product-info, .product-card .product-meta, .product-card .product-starting-price, .product-card .add-to-bag-card { opacity: 1; transform: none; pointer-events: auto; }
+}
