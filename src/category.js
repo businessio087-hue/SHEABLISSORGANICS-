@@ -1,0 +1,10 @@
+import { CATALOG } from '../shared/catalog.mjs';
+const slugify = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+const category = new URLSearchParams(window.location.search).get('category') || 'Skin';
+const products = CATALOG.filter((item) => item.category.toLowerCase() === category.toLowerCase());
+const label = products[0]?.category || 'Products';
+document.title = `${label} — SHEABLISS ORGANICS`;
+document.querySelector('#category-breadcrumb').textContent = label;
+document.querySelector('#category-title').textContent = label;
+document.querySelector('#category-description').textContent = label === 'Skin' ? 'Rich, grounding care for the skin you live in.' : label === 'Hair' ? 'Nourishing blends for the hair rituals you return to.' : 'Thoughtful wellness essentials for clear-minded mornings.';
+document.querySelector('#category-products').innerHTML = products.map((item, index) => `<article class="category-product category-product-${index + 1}"><span class="product-index">0${index + 1} / ${item.category.toUpperCase()}</span><div class="category-product-object"><span>${item.product}</span></div><p class="category-product-note">${item.description}</p><h2>${item.product}</h2><strong>from R${Math.min(...item.variants.map((variant) => variant.amountZar)).toLocaleString('en-ZA')}</strong></article>`).join('');

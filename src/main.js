@@ -274,6 +274,10 @@ document.querySelectorAll('.desktop-nav a').forEach((link) => link.addEventListe
   header.classList.remove('menu-open');
   menuToggle?.setAttribute('aria-expanded', 'false');
 }));
+document.querySelectorAll('.site-menu a').forEach((link) => link.addEventListener('click', () => {
+  header.classList.remove('menu-open');
+  menuToggle?.setAttribute('aria-expanded', 'false');
+}));
 
 const paymentState = new URLSearchParams(window.location.search).get('payment');
 const returnedOrderId = new URLSearchParams(window.location.search).get('order_id');
