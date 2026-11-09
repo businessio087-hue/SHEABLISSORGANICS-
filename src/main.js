@@ -266,17 +266,18 @@ document.querySelector('#newsletter-form')?.addEventListener('submit', (event) =
 
 const menuToggle = document.querySelector('.menu-toggle');
 const header = document.querySelector('.site-header');
+const siteMenu = document.querySelector('#site-menu');
 menuToggle?.addEventListener('click', () => {
   const isOpen = header.classList.toggle('menu-open');
   menuToggle.setAttribute('aria-expanded', String(isOpen));
+  menuToggle.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+  if (siteMenu) siteMenu.hidden = !isOpen;
 });
-document.querySelectorAll('.desktop-nav a').forEach((link) => link.addEventListener('click', () => {
-  header.classList.remove('menu-open');
-  menuToggle?.setAttribute('aria-expanded', 'false');
-}));
 document.querySelectorAll('.site-menu a').forEach((link) => link.addEventListener('click', () => {
   header.classList.remove('menu-open');
   menuToggle?.setAttribute('aria-expanded', 'false');
+  menuToggle?.setAttribute('aria-label', 'Open menu');
+  if (siteMenu) siteMenu.hidden = true;
 }));
 
 const paymentState = new URLSearchParams(window.location.search).get('payment');
