@@ -1,9 +1,11 @@
 import { defineConfig } from 'vite';
 import { yocoApiHandler } from './server/yoco.mjs';
+import { accountApiHandler } from './server/accounts.mjs';
 
 const mountYocoApi = (server) => {
   server.middlewares.use(async (req, res, next) => {
     try {
+      if (await accountApiHandler(req, res)) return;
       const handled = await yocoApiHandler(req, res);
       if (!handled) next();
     } catch (error) {
@@ -40,6 +42,8 @@ export default defineConfig({
         privacy: new URL('./privacy.html', import.meta.url).pathname,
         category: new URL('./category.html', import.meta.url).pathname,
         shop: new URL('./shop.html', import.meta.url).pathname,
+        account: new URL('./account.html', import.meta.url).pathname,
+        wishlist: new URL('./wishlist.html', import.meta.url).pathname,
       },
     },
   },

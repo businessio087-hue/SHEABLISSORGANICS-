@@ -2,6 +2,7 @@ export const CATALOG = [
   {
     product: 'Organic Sheabutter',
     category: 'Skin',
+    collection: 'Body',
     description: 'Unrefined shea butter, raw shea butter with citronelle.',
     variants: [
       { size: '100g', amountZar: 100 },

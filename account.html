@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f0e9dc" />
+    <meta name="description" content="Your SheaBliss account — keep your details and favourite rituals close." />
+    <link rel="icon" type="image/png" href="/favicon-circle.png" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <title>Your Account — SHEABLISS ORGANICS</title>
+  </head>
+  <body class="account-page">
+    <div class="grain" aria-hidden="true"></div>
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="SheaBliss Organics home"><img class="brand-logo brand-logo-header" src="/logo-shea-outline.png" alt="SheaBliss Organics logo" /><span class="brand-name"><strong>SheaBliss</strong><small>Organics</small></span></a>
+      <nav class="desktop-nav" aria-label="Main navigation"><a href="/shop.html">Shop</a><a href="/category.html?category=Body">Body</a><a href="/category.html?category=Hair">Hair</a><a href="/category.html?category=Skin">Skin</a><a href="/category.html?category=Health">Health</a><a href="/about.html">About us</a></nav>
+      <div class="header-actions">
+        <a class="text-button header-account-link" href="/account.html" data-account-link aria-label="Sign in or create a SheaBliss account"><span data-account-label>Sign in</span></a>
+        <a class="text-button header-wishlist-link" href="/wishlist.html" data-wishlist-link hidden aria-label="Your wishlist"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span>Wishlist</span></a>
+        <a class="text-button" href="/?bag=open">Bag</a>
+        <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-menu"><span></span><span></span></button>
+      </div>
+      <nav class="site-menu" id="site-menu" aria-label="Site menu" hidden><a href="/shop.html">Shop</a><a href="/category.html?category=Body">Body</a><a href="/category.html?category=Hair">Hair</a><a href="/category.html?category=Skin">Skin</a><a href="/category.html?category=Health">Health</a><a href="/about.html">About us</a></nav>
+    </header>
+    <main class="account-main">
+      <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><span aria-current="page">Account</span></nav>
+      <div class="account-heading"><p class="eyebrow">Your SheaBliss / A little closer</p><h1>Keep your<br /><i>rituals close.</i></h1><p>One space for your details and the care you return to.</p></div>
+      <p id="account-status" class="account-status" role="status" aria-live="polite">Checking your account…</p>
+      <section id="account-guest" class="account-section" hidden>
+        <h2>A place of your own.</h2>
+        <p id="account-guest-note">Create an account to save your delivery details and keep your favourite products together. Already registered? Sign in to return to your account.</p>
+        <div class="account-buttons"><button class="account-primary" type="button" data-start-login>Create your account</button><button class="account-secondary" type="button" data-start-login>Sign in</button></div>
+        <p class="account-fine-print">Secure sign-in is provided by Manus. Your SheaBliss account is created separately after you confirm your details. We do not ask for or store your password.</p>
+      </section>
+      <section id="account-registration" class="account-section" hidden>
+        <p class="eyebrow">One last step</p><h2>Make it yours.</h2><p>Your identity is verified. Confirm your details to create your SheaBliss account. Delivery information is optional.</p>
+        <form id="registration-form" class="customer-form">
+          <div class="account-field-container"></div>
+          <label class="account-consent"><input type="checkbox" name="acceptedTerms" required /><span>I agree to the <a href="/terms.html" target="_blank" rel="noopener">Terms of Use</a> and acknowledge the <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a> for my account and saved details.</span></label>
+          <button class="account-primary" type="submit">Create my SheaBliss account</button>
+          <button class="account-secondary" type="button" data-sign-out>Sign out</button>
+        </form>
+      </section>
+      <section id="account-profile" class="account-section" hidden>
+        <p class="eyebrow">Your account</p><h2 id="account-greeting"></h2><p>Keep your delivery details up to date. They can help you complete your next checkout.</p>
+        <div class="account-buttons"><a class="account-secondary" href="/wishlist.html" data-wishlist-link hidden>Your wishlist</a><button class="account-secondary" type="button" data-sign-out>Sign out</button></div>
+        <form id="profile-form" class="customer-form"><div class="account-field-container"></div><button class="account-primary" type="submit">Save my details</button></form>
+        <p class="account-fine-print">Your email belongs to your verified sign-in identity. For account or data requests, contact <a href="mailto:SHEABLISS8@gmail.com">SHEABLISS8@gmail.com</a>.</p>
+      </section>
+    </main>
+    <template id="customer-fields">
+      <div class="customer-form-grid"><label>Full name<input name="name" autocomplete="name" maxlength="120" required /></label><label>Verified email<input name="email" type="email" autocomplete="email" readonly /></label><label>Phone number (optional)<input name="phone" type="tel" autocomplete="tel" maxlength="40" /></label></div>
+      <fieldset><legend>Delivery details (optional)</legend><div class="customer-form-grid"><label>Street address<input name="streetAddress" autocomplete="address-line1" maxlength="255" /></label><label>Suburb<input name="suburb" autocomplete="address-level2" maxlength="120" /></label><label>Postal code<input name="postalCode" autocomplete="postal-code" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" /></label><label>Building type<select name="buildingType"><option value="">Select building type</option><option>House</option><option>Apartment / Flat</option><option>Office / Business</option><option>Other</option></select></label><label class="customer-form-wide">Business park / Estate / Company name<input name="companyName" autocomplete="organization" maxlength="160" /></label></div></fieldset>
+    </template>
+    <footer class="account-footer"><a href="/shop.html">Shop</a><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms of Use</a><a href="/cookies.html">Cookies Policy</a></footer>
+    <script type="module" src="/src/account.js"></script>
+  </body>
+</html>

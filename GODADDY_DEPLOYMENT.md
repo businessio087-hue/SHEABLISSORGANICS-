@@ -98,3 +98,15 @@ Point the domain or subdomain DNS to the GoDaddy hosting account, enable HTTPS, 
 ## 6. Do not commit
 
 Never commit `.env`, database passwords, Yoco keys, Yoco webhook secrets, Gmail App Passwords, Bob Go keys, or database exports. The repository includes `.env.example` only as a names-and-format template.
+
+## Customer accounts and wishlists
+
+Customer profiles, wishlist rows and account-session security records use the MySQL database. Run the additive account migration after configuring the target database and before serving account requests:
+
+```bash
+node scripts/migrate-accounts.mjs
+```
+
+Account sign-in now uses Manus OAuth. A GoDaddy transfer is **not complete for accounts merely because Node.js, Yoco and Gmail are configured**. Verify continued availability of the project OAuth client, the identity API, the project signing secret, and acceptance of the new HTTPS callback URL (`https://YOUR_DOMAIN/api/account/callback`). Platform-provided authentication values include `MANUS_PROJECT_ID`, `MANUS_OAUTH_PORTAL_URL`, `MANUS_OAUTH_API_URL`, and the protected `MANUS_JWT_SECRET`; do not put any signing secret in the repository or treat the provider redirect policy as guaranteed for a new host. If the new host cannot use this OAuth client, choose and explicitly configure a portable authentication provider before enabling customer accounts there.
+
+Transfer the account tables together with the existing order tables using a secure database export/import, not through Git. Verify sign-in, explicit customer registration, saved profile edits, ownership checks, sign-out and account-only wishlist visibility on the new domain. Use HTTPS and the application's secure cookies; do not weaken session validation or cookie security to make a migration work.

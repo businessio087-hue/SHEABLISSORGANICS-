@@ -12,7 +12,9 @@
     "build": "vite build",
     "localize:assets": "node scripts/localize-manus-assets.mjs",
     "start": "node server.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:accounts": "node --test server/accounts.test.mjs tests/customer-session.test.mjs",
+    "migrate:accounts": "node scripts/migrate-accounts.mjs"
   },
   "devDependencies": {
     "vite": "^6.1.0"

@@ -1,5 +1,6 @@
 import './navigation.js';
 import { readBag, saveBag } from './cart-storage.js';
+import { getCustomerSession } from './customer-session.js';
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -66,6 +67,18 @@ const bagCount = document.querySelector('.bag-count');
 const checkoutForm = document.querySelector('#checkout-form');
 const checkoutMessage = document.querySelector('.checkout-message');
 const checkoutSubmit = checkoutForm?.querySelector('.checkout-submit');
+const accountFilledFields = new Map();
+function clearAccountFilledFields(owner = null) {
+  for (const [field, saved] of accountFilledFields) {
+    if (saved.owner === owner) continue;
+    if (field.value === saved.value) field.value = '';
+    accountFilledFields.delete(field);
+  }
+}
+document.addEventListener('customer-session-changed', (event) => {
+  const current = event.detail;
+  clearAccountFilledFields(current.authenticated && current.registered ? current.user?.id : null);
+});
 
 const moneyValue = (price) => Number(String(price).replace(/[^0-9]/g, '')) || 0;
 const formatMoney = (amount) => `R${amount.toLocaleString('en-ZA')}`;
@@ -99,6 +112,17 @@ const openCheckout = () => {
   document.body.classList.add('checkout-open');
   document.querySelector('#bag-button')?.setAttribute('aria-expanded', 'true');
   checkoutModal.querySelector('.checkout-close')?.focus();
+  getCustomerSession(true).then((current) => {
+    if (!current.authenticated || !current.registered || !current.user || !checkoutForm || checkoutModal.hidden) return;
+    const details = { name: current.user.name, email: current.user.email, phone: current.user.phone, ...(current.user.address || {}) };
+    for (const [name, value] of Object.entries(details)) {
+      const field = checkoutForm.elements.namedItem(name);
+      if (field && !field.value && value) {
+        field.value = value;
+        accountFilledFields.set(field, { value, owner: current.user.id });
+      }
+    }
+  }).catch(() => { clearAccountFilledFields(); /* Manually entered guest details remain available. */ });
 };
 const closeCheckout = () => {
   if (!checkoutModal) return;

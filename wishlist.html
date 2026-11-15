@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f0e9dc" />
+    <meta name="description" content="Saved SheaBliss rituals, privately kept in your customer account." />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/png" href="/favicon-circle.png" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <title>Saved Rituals — SHEABLISS ORGANICS</title>
+  </head>
+  <body class="account-page wishlist-page">
+    <div class="grain" aria-hidden="true"></div>
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="SheaBliss Organics home"><img class="brand-logo brand-logo-header" src="/logo-shea-outline.png" alt="SheaBliss Organics logo" /><span class="brand-name"><strong>SheaBliss</strong><small>Organics</small></span></a>
+      <nav class="desktop-nav" aria-label="Main navigation"><a href="/shop.html">Shop</a><a href="/category.html?category=Body">Body</a><a href="/category.html?category=Hair">Hair</a><a href="/category.html?category=Skin">Skin</a><a href="/category.html?category=Health">Health</a><a href="/about.html">About us</a></nav>
+      <div class="header-actions">
+        <a class="text-button header-account-link" href="/account.html" data-account-link aria-label="Sign in or create a SheaBliss account"><span data-account-label>Sign in</span></a>
+        <a class="text-button header-wishlist-link" href="/wishlist.html" data-wishlist-link hidden aria-label="Your wishlist"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg><span>Wishlist</span></a>
+        <a class="text-button" href="/?bag=open">Bag</a><button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-menu"><span></span><span></span></button>
+      </div>
+      <nav class="site-menu" id="site-menu" aria-label="Site menu" hidden><a href="/shop.html">Shop</a><a href="/category.html?category=Body">Body</a><a href="/category.html?category=Hair">Hair</a><a href="/category.html?category=Skin">Skin</a><a href="/category.html?category=Health">Health</a><a href="/about.html">About us</a></nav>
+    </header>
+    <main class="account-main">
+      <p id="wishlist-page-status" class="account-status" role="status" aria-live="polite"></p>
+      <section id="wishlist-gate" class="account-section" hidden><nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><a href="/account.html">Account</a></nav><p class="eyebrow">A place of your own</p><h1>Some things<br /><i>are worth keeping.</i></h1><p>Create your SheaBliss account and sign in to unlock a private space for your favourite products.</p><a class="account-primary" href="/account.html">Create an account or sign in</a></section>
+      <section id="wishlist-content" hidden><nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><a href="/account.html">Account</a><span>/</span><span aria-current="page">Wishlist</span></nav><div class="account-heading"><p class="eyebrow">Your SheaBliss / Saved rituals</p><h1>Your<br /><i>wishlist.</i></h1><p>The products you love, kept close for another day.</p></div><div class="saved-products" id="saved-products"></div><a class="line-link" href="/shop.html">Return to the shop</a></section>
+    </main>
+    <footer class="account-footer"><a href="/account.html">Account</a><a href="/shop.html">Shop</a><a href="/privacy.html">Privacy Policy</a><a href="/cookies.html">Cookies Policy</a></footer>
+    <script type="module" src="/src/wishlist-page.js"></script>
+  </body>
+</html>

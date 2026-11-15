@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { yocoApiHandler } from './server/yoco.mjs';
+import { accountApiHandler } from './server/accounts.mjs';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const dist = path.join(root, 'dist');
@@ -55,6 +56,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
   try {
+    if (await accountApiHandler(req, res)) return;
     if (await yocoApiHandler(req, res)) return;
     if (!['GET', 'HEAD'].includes(req.method)) {
       res.statusCode = 405;

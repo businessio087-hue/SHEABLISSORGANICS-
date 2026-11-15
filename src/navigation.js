@@ -1,4 +1,5 @@
 import './page-transition.js';
+import './wishlist.js';
 
 const header = document.querySelector('.site-header');
 const toggle = header?.querySelector('.menu-toggle');
