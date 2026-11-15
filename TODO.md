@@ -22,3 +22,6 @@
 - [x] The wishlist link, section and saved products appear only after a user creates a SheaBliss account and signs in. Guests see hearts but clicking one prompts account creation; unauthenticated/unregistered wishlist API access cannot reveal saved data.
 - [x] Retain the existing bag, Yoco payment integration and Gmail order emails. Include profile/wishlist/session handling in privacy/cookie notices and migration notes; verify real session behavior and protected API responses without creating fake live users or writing test customer records into the shared production database.
 - [ ] First actual customer completes provider sign-in and explicit SheaBliss registration, then checks profile saving, wishlist persistence and sign-out in the public site. Secure initiation reached the live branded provider sign-in page; credentials were not entered and no live customer was created during automated verification.
+
+## Shop category navigation
+- [x] Show a visible Skin category link within the Shop page content, alongside Body, Hair and Health; open the dedicated Skin page and preserve Skin as a separate category without reassigning existing Body products.
