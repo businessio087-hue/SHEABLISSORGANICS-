@@ -32,3 +32,6 @@
 - [x] Flag the ambiguous shea-butter/soap row, label Palm Kernel Oil as a soap-making ingredient, distinguish butters from creams where clear, and correct the lip balm's inconsistent product code while preserving its source reference.
 - [x] Show new products on Shop and relevant category pages with functional category/product-type navigation and heart buttons; render names and availability safely in private wishlists without Infinity or invented prices.
 - [x] Leave all imported products non-purchasable until sizes and prices are approved; reject unavailable/unpriced products in canonical checkout lookup and saved-bag hydration. Preserve existing prices, cart persistence, Yoco validation, customer accounts and Gmail order confirmations.
+
+## About Us preview edits — 87f720c8-28f6-4aa3-92ea-73375e945534
+- [x] In the People and Their Culture paragraph, change the opening Tooro to Toro and Batooro to Batoro; keep Rutooro and all other text unchanged. In the Ecosystem paragraph, change only the opening Tooro to Toro. Preserve section IDs, images, headings, adjacent paragraphs, layout and existing navigation/customer behavior.
