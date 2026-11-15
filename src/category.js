@@ -1,11 +1,37 @@
 import { CATALOG } from '../shared/catalog.mjs';
-const slugify = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-const category = new URLSearchParams(window.location.search).get('category') || 'Skin';
-const products = CATALOG.filter((item) => item.category.toLowerCase() === category.toLowerCase());
-const label = products[0]?.category || 'Products';
-const displayLabel = label === 'Skin' ? 'Body' : label;
-document.title = `${displayLabel} — SHEABLISS ORGANICS`;
-document.querySelector('#category-breadcrumb').textContent = displayLabel;
-document.querySelector('#category-title').textContent = displayLabel;
-document.querySelector('#category-description').textContent = label === 'Skin' ? 'Rich, grounding care for the skin you live in.' : label === 'Hair' ? 'Nourishing blends for the hair rituals you return to.' : 'Thoughtful wellness essentials for clear-minded mornings.';
-document.querySelector('#category-products').innerHTML = products.map((item, index) => `<article class="category-product category-product-${index + 1}"><span class="product-index">0${index + 1} / ${item.category.toUpperCase()}</span><div class="category-product-object"><span>${item.product}</span></div><p class="category-product-note">${item.description}</p><h2>${item.product}</h2><strong>from R${Math.min(...item.variants.map((variant) => variant.amountZar)).toLocaleString('en-ZA')}</strong></article>`).join('');
+import './navigation.js';
+
+const requestedCategory = new URLSearchParams(location.search).get('category') || 'Body';
+const pageIsShop = location.pathname.endsWith('/shop.html');
+const category = pageIsShop ? 'Shop' : ['Body', 'Hair', 'Skin', 'Health'].find((value) => value.toLowerCase() === requestedCategory.toLowerCase());
+const label = category || 'Products';
+// Sheabutter was previously displayed as Body while stored under Skin.
+// Keep that catalog identifier unchanged for payments; a separate Skin range is not yet supplied.
+const catalogCategory = category === 'Body' ? 'Skin' : category === 'Skin' ? null : category;
+const products = pageIsShop ? CATALOG : catalogCategory ? CATALOG.filter((item) => item.category === catalogCategory) : [];
+const descriptions = {
+  Shop: 'The complete edit. Grounding care for body, hair and everyday well-being.',
+  Body: 'Rich, grounding care for the skin you live in.',
+  Hair: 'Nourishing blends for the hair rituals you return to.',
+  Skin: 'A space for your daily skincare rituals.',
+  Health: 'Thoughtful wellness essentials for clear-minded mornings.',
+};
+
+function displayCategory(value) {
+  return value === 'Skin' ? 'Body' : value;
+}
+
+const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+document.title = `${label} — SHEABLISS ORGANICS`;
+document.querySelector('#category-breadcrumb').textContent = label;
+document.querySelector('#category-title').textContent = label;
+document.querySelector('#category-description').textContent = descriptions[label] || 'Explore the SHEABLISS collection.';
+document.querySelector('meta[name="description"]').content = `${label} — ${descriptions[label] || 'Explore the SHEABLISS collection.'}`;
+
+const container = document.querySelector('#category-products');
+if (!products.length) {
+  container.classList.add('category-empty');
+  container.innerHTML = `<div class="category-empty-note"><h2>${category === 'Skin' ? 'Our Skin collection is not listed yet.' : 'This collection is not available.'}</h2><p>${category === 'Skin' ? 'Discover our current body care, hair care and wellness products in the shop.' : 'Browse the current collection in the shop.'}</p><a class="line-link" href="/shop.html">Explore the shop</a></div>`;
+} else {
+  container.innerHTML = products.map((item, index) => `<article class="category-product category-product-${escapeHtml(item.category.toLowerCase())}"><span class="product-index">${String(index + 1).padStart(2, '0')} / ${displayCategory(item.category).toUpperCase()}</span><div class="category-product-object"><span>${escapeHtml(item.product)}</span></div><p class="category-product-note">${escapeHtml(item.description)}</p><h2>${escapeHtml(item.product)}</h2><strong>from R${Math.min(...item.variants.map((variant) => variant.amountZar)).toLocaleString('en-ZA')}</strong></article>`).join('');
+}

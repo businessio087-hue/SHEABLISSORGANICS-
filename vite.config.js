@@ -39,6 +39,7 @@ export default defineConfig({
         terms: new URL('./terms.html', import.meta.url).pathname,
         privacy: new URL('./privacy.html', import.meta.url).pathname,
         category: new URL('./category.html', import.meta.url).pathname,
+        shop: new URL('./shop.html', import.meta.url).pathname,
       },
     },
   },

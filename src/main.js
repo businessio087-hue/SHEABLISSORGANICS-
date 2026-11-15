@@ -1,3 +1,6 @@
+import './navigation.js';
+import { readBag, saveBag } from './cart-storage.js';
+
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const finishPreloader = () => {
@@ -55,7 +58,7 @@ const showNotice = (message) => {
   noticeTimer = setTimeout(() => notice.classList.remove('show'), 3200);
 };
 
-const cart = [];
+const cart = readBag();
 const checkoutModal = document.querySelector('#checkout-modal');
 const checkoutItems = document.querySelector('#checkout-items');
 const checkoutTotal = document.querySelector('#checkout-total');
@@ -69,7 +72,9 @@ const formatMoney = (amount) => `R${amount.toLocaleString('en-ZA')}`;
 const updateBagCount = () => {
   const count = cart.reduce((total, item) => total + item.quantity, 0);
   if (bagCount) bagCount.textContent = `(${count})`;
+  saveBag(cart);
 };
+updateBagCount();
 const renderCart = () => {
   if (!checkoutItems || !checkoutTotal) return;
   if (!cart.length) {
@@ -264,21 +269,13 @@ document.querySelector('#newsletter-form')?.addEventListener('submit', (event) =
   if (input) input.value = '';
 });
 
-const menuToggle = document.querySelector('.menu-toggle');
-const header = document.querySelector('.site-header');
-const siteMenu = document.querySelector('#site-menu');
-menuToggle?.addEventListener('click', () => {
-  const isOpen = header.classList.toggle('menu-open');
-  menuToggle.setAttribute('aria-expanded', String(isOpen));
-  menuToggle.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
-  if (siteMenu) siteMenu.hidden = !isOpen;
+if (new URLSearchParams(location.search).get('bag') === 'open') openCheckout();
+
+window.addEventListener('pageshow', (event) => {
+  if (!event.persisted) return;
+  cart.splice(0, cart.length, ...readBag());
+  renderCart();
 });
-document.querySelectorAll('.site-menu a').forEach((link) => link.addEventListener('click', () => {
-  header.classList.remove('menu-open');
-  menuToggle?.setAttribute('aria-expanded', 'false');
-  menuToggle?.setAttribute('aria-label', 'Open menu');
-  if (siteMenu) siteMenu.hidden = true;
-}));
 
 const paymentState = new URLSearchParams(window.location.search).get('payment');
 const returnedOrderId = new URLSearchParams(window.location.search).get('order_id');
