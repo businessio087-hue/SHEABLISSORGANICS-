@@ -341,18 +341,20 @@ h1 span, h2 i { font-style: italic; font-weight: 300; }
 @media (max-width: 650px) { .desktop-nav { display: none; } }
 
 /* Product panels: visual card first, purchase information revealed underneath. */
-.product-card { overflow: hidden; justify-content: flex-end; }
-.product-card .product-info { position: relative; top: auto; left: auto; right: auto; z-index: 3; width: 100%; max-width: none; margin: 0 0 16px; opacity: 0; transform: translateY(12px); transition: opacity .28s ease, transform .28s ease; pointer-events: none; }
-.product-card .product-meta, .product-card .product-starting-price, .product-card .add-to-bag-card { opacity: 0; transform: translateY(12px); transition: opacity .28s ease, transform .28s ease; }
-.product-card:hover .product-info, .product-card:focus .product-info, .product-card:focus-within .product-info,
-.product-card:hover .product-meta, .product-card:focus .product-meta, .product-card:focus-within .product-meta,
-.product-card:hover .product-starting-price, .product-card:focus .product-starting-price, .product-card:focus-within .product-starting-price,
-.product-card:hover .add-to-bag-card, .product-card:focus .add-to-bag-card, .product-card:focus-within .add-to-bag-card { opacity: 1; transform: translateY(0); }
-.product-card:hover .product-info, .product-card:focus .product-info, .product-card:focus-within .product-info,
-.product-card:hover .add-to-bag-card, .product-card:focus .add-to-bag-card, .product-card:focus-within .add-to-bag-card { pointer-events: auto; }
-@media (max-width: 650px) {
-  .product-card { min-height: 470px; overflow: hidden; }
-  .product-card .product-info, .product-card .product-meta, .product-card .product-starting-price, .product-card .add-to-bag-card { opacity: 1; transform: none; pointer-events: auto; }
+.products-grid .product-card { color: var(--espresso); justify-content: flex-start; }
+.product-card .product-info { position: relative; top: auto; left: auto; right: auto; z-index: 3; width: 100%; max-width: none; margin: 0 0 16px; opacity: 1; transform: none; transition: none; pointer-events: auto; }
+.product-details { width: 100%; color: var(--espresso); }
+@media (min-width: 651px) and (hover: hover) and (pointer: fine) {
+  .product-details { opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(6px); transition: opacity 180ms var(--ease-out), transform 180ms var(--ease-out); }
+  .product-card:hover .product-details, .product-card:focus .product-details, .product-card:focus-within .product-details { opacity: 1; visibility: visible; pointer-events: auto; transform: none; }
+}
+@media (hover: none), (pointer: coarse), (max-width: 650px) {
+  .products-grid .product-card:hover { transform: none; box-shadow: none; }
+  .product-card:hover .product-object { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .product-details { transition: none; transform: none; }
+  .products-grid .product-card:hover, .product-card:hover .product-object { transform: none; }
 }
 
 /* Compact visual panels with a separate information area beneath them. */
