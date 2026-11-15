@@ -1,6 +1,7 @@
 import './navigation.js';
 import { readBag, saveBag } from './cart-storage.js';
-import { getCustomerSession } from './customer-session.js';
+import { getCustomerSession, escapeHtml } from './customer-session.js';
+import { findVariant, getProductName } from '../shared/catalog.mjs';
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -80,7 +81,6 @@ document.addEventListener('customer-session-changed', (event) => {
   clearAccountFilledFields(current.authenticated && current.registered ? current.user?.id : null);
 });
 
-const moneyValue = (price) => Number(String(price).replace(/[^0-9]/g, '')) || 0;
 const formatMoney = (amount) => `R${amount.toLocaleString('en-ZA')}`;
 const updateBagCount = () => {
   const count = cart.reduce((total, item) => total + item.quantity, 0);
@@ -97,8 +97,8 @@ const renderCart = () => {
     return;
   }
   checkoutItems.innerHTML = cart.map((item, index) => `<div class="checkout-item" data-cart-index="${index}">
-    <p class="checkout-item-name">${item.product}<small>${item.size} · ${item.price}</small></p>
-    <div class="checkout-quantity" aria-label="Quantity for ${item.product} ${item.size}"><button type="button" data-cart-action="decrease" aria-label="Decrease quantity">−</button><span>${item.quantity}</span><button type="button" data-cart-action="increase" aria-label="Increase quantity">+</button></div>
+    <p class="checkout-item-name">${escapeHtml(getProductName(item.product))}<small>${escapeHtml(item.size)} · ${escapeHtml(item.price)}</small></p>
+    <div class="checkout-quantity" aria-label="Quantity for ${escapeHtml(getProductName(item.product))} ${escapeHtml(item.size)}"><button type="button" data-cart-action="decrease" aria-label="Decrease quantity">−</button><span>${item.quantity}</span><button type="button" data-cart-action="increase" aria-label="Increase quantity">+</button></div>
     <button class="checkout-remove" type="button" data-cart-action="remove">Remove</button>
   </div>`).join('');
   const total = cart.reduce((sum, item) => sum + item.amount * item.quantity, 0);
@@ -224,11 +224,7 @@ document.querySelectorAll('.choose-button').forEach((button) => {
 document.querySelectorAll('.price-option').forEach((button) => {
   button.addEventListener('click', (event) => {
     event.stopPropagation();
-    const existing = cart.find((item) => item.product === button.dataset.product && item.size === button.dataset.size && item.price === button.dataset.price);
-    if (existing) existing.quantity += 1;
-    else cart.push({ product: button.dataset.product, size: button.dataset.size, price: button.dataset.price, amount: moneyValue(button.dataset.price), quantity: 1 });
-    updateBagCount();
-    showNotice(`${button.dataset.product} · ${button.dataset.size} · ${button.dataset.price} added to your ritual bag.`);
+    if (!addBagItem(button)) return;
     const panel = button.closest('.price-options');
     const trigger = panel && document.querySelector(`[aria-controls="${panel.id}"]`);
     if (panel && trigger) {
@@ -240,11 +236,18 @@ document.querySelectorAll('.price-option').forEach((button) => {
 });
 
 const addBagItem = (button) => {
-  const existing = cart.find((item) => item.product === button.dataset.product && item.size === button.dataset.size && item.price === button.dataset.price);
+  const variant = findVariant(button.dataset.product, button.dataset.size);
+  if (!variant) {
+    showNotice('This product is not available to purchase until its details and price are confirmed.');
+    return false;
+  }
+  const price = formatMoney(variant.amountZar);
+  const existing = cart.find((item) => item.product === variant.product && item.size === variant.size);
   if (existing) existing.quantity += 1;
-  else cart.push({ product: button.dataset.product, size: button.dataset.size, price: button.dataset.price, amount: moneyValue(button.dataset.price), quantity: 1 });
+  else cart.push({ product: variant.product, size: variant.size, price, amount: variant.amountZar, quantity: 1 });
   updateBagCount();
-  showNotice(`${button.dataset.product} · ${button.dataset.size} · ${button.dataset.price} added to your ritual bag.`);
+  showNotice(`${getProductName(variant)} · ${variant.size} · ${price} added to your ritual bag.`);
+  return true;
 };
 
 document.querySelectorAll('.add-to-bag-card').forEach((button) => button.addEventListener('click', (event) => {
@@ -293,7 +296,16 @@ document.querySelector('#newsletter-form')?.addEventListener('submit', (event) =
   if (input) input.value = '';
 });
 
-if (new URLSearchParams(location.search).get('bag') === 'open') openCheckout();
+const pageParameters = new URLSearchParams(location.search);
+if (pageParameters.get('bag') === 'open') {
+  if (pageParameters.get('product') && pageParameters.get('size')) {
+    addBagItem({ dataset: { product: pageParameters.get('product'), size: pageParameters.get('size') } });
+    pageParameters.delete('product');
+    pageParameters.delete('size');
+    history.replaceState(history.state, '', `${location.pathname}?${pageParameters.toString()}${location.hash}`);
+  }
+  openCheckout();
+}
 
 window.addEventListener('pageshow', (event) => {
   if (!event.persisted) return;

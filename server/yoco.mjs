@@ -136,6 +136,7 @@ const validateInput = (body) => {
     }
     return {
       product: variant.product,
+      name: variant.name || variant.product,
       category: variant.category,
       size: variant.size,
       description: variant.description,

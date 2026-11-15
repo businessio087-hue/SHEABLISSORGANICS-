@@ -14,7 +14,8 @@
     "start": "node server.mjs",
     "preview": "vite preview",
     "test:accounts": "node --test server/accounts.test.mjs tests/customer-session.test.mjs",
-    "migrate:accounts": "node scripts/migrate-accounts.mjs"
+    "migrate:accounts": "node scripts/migrate-accounts.mjs",
+    "test:catalog": "node --test tests/catalog.test.mjs tests/catalog-ui.test.mjs"
   },
   "devDependencies": {
     "vite": "^6.1.0"

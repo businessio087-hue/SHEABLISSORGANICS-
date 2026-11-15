@@ -28,9 +28,9 @@ const orderParts = ({ orderId, referenceNumber, amountCents, currency, items }) 
   const safeCurrency = escapeHtml(currency);
   const itemRows = (Array.isArray(items) ? items : []).map((item) => {
     const lineTotal = Number(item.amountCents) * Number(item.quantity);
-    return `<tr><td style="padding:8px 0;border-bottom:1px solid #eadfce">${escapeHtml(item.product)} — ${escapeHtml(item.size)} × ${escapeHtml(item.quantity)}</td><td style="padding:8px 0;border-bottom:1px solid #eadfce;text-align:right">${escapeHtml(money(lineTotal, currency))}</td></tr>`;
+    return `<tr><td style="padding:8px 0;border-bottom:1px solid #eadfce">${escapeHtml(item.name || item.product)} — ${escapeHtml(item.size)} × ${escapeHtml(item.quantity)}</td><td style="padding:8px 0;border-bottom:1px solid #eadfce;text-align:right">${escapeHtml(money(lineTotal, currency))}</td></tr>`;
   }).join('');
-  const textItems = (Array.isArray(items) ? items : []).map((item) => `- ${item.product} — ${item.size} × ${item.quantity}: ${money(Number(item.amountCents) * Number(item.quantity), currency)}`).join('\n');
+  const textItems = (Array.isArray(items) ? items : []).map((item) => `- ${item.name || item.product} — ${item.size} × ${item.quantity}: ${money(Number(item.amountCents) * Number(item.quantity), currency)}`).join('\n');
   return { safeOrderId, safeReferenceNumber, safeCurrency, itemRows, textItems, total: money(amountCents, currency) };
 };
 

@@ -12,7 +12,7 @@
 
 ## Header pages and cream fade
 - [x] Remove Home from the header menus and display Shop, Body, Hair, Skin, Health, About Us in exactly that order on desktop and in the mobile dropdown. Keep the logo as the home link and preserve centered navigation and hover lift.
-- [x] Every header item opens its corresponding page: Shop shows the complete existing catalog; Body retains the existing sheabutter product; Hair and Health retain their current products; Skin has its own page awaiting a separate product assignment. Preserve clickable breadcrumbs and purchasing data.
+- [x] Every header item opens its corresponding page: Shop shows the complete catalog; Body retains the existing sheabutter product; Hair and Health retain their current products; Skin is a separate face/lip care collection populated from the approved product list. Preserve clickable breadcrumbs and purchasing data.
 - [x] Add a soft warm-cream fade between pages, respect reduced motion, preserve modified clicks/external links/anchors, and restore a visible usable page after browser Back/Forward.
 
 ## Customer accounts and wishlist
@@ -25,3 +25,10 @@
 
 ## Shop category navigation
 - [x] Show a visible Skin category link within the Shop page content, alongside Body, Hair and Health; open the dedicated Skin page and preserve Skin as a separate category without reassigning existing Body products.
+
+## Approved product-list catalog
+- [x] Import all 32 spreadsheet entries with clear display names, source codes/item numbers, product types, suitable-for labels and supplied benefits; retain the three current priced products without merging them with unconfirmed spreadsheet formulations.
+- [x] Use Body, Skin, Hair and Health as separate categories; map FACE to Skin, add product-type subcategories, support explicit multi-use category memberships, and keep potential duplicate rows separate until their formulations are confirmed.
+- [x] Flag the ambiguous shea-butter/soap row, label Palm Kernel Oil as a soap-making ingredient, distinguish butters from creams where clear, and correct the lip balm's inconsistent product code while preserving its source reference.
+- [x] Show new products on Shop and relevant category pages with functional category/product-type navigation and heart buttons; render names and availability safely in private wishlists without Infinity or invented prices.
+- [x] Leave all imported products non-purchasable until sizes and prices are approved; reject unavailable/unpriced products in canonical checkout lookup and saved-bag hydration. Preserve existing prices, cart persistence, Yoco validation, customer accounts and Gmail order confirmations.
