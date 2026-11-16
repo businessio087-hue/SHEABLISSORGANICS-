@@ -5,7 +5,7 @@ export const SPREADSHEET_PRODUCTS = [
     "id": "bo-cre-0001",
     "product": "BO-CRE-0001",
     "code": "BO-CRE-0001",
-    "name": "Moisturising Shea Butter",
+    "name": "Raw Shea Butter",
     "category": "Body",
     "categories": [
       "Body"

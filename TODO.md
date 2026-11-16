@@ -35,3 +35,6 @@
 
 ## About Us preview edits — 87f720c8-28f6-4aa3-92ea-73375e945534
 - [x] In the People and Their Culture paragraph, change the opening Tooro to Toro and Batooro to Batoro; keep Rutooro and all other text unchanged. In the Ecosystem paragraph, change only the opening Tooro to Toro. Preserve section IDs, images, headings, adjacent paragraphs, layout and existing navigation/customer behavior.
+
+## Raw Shea Butter product rename
+- [x] Rename spreadsheet item 1 / BO-CRE-0001 from Moisturised (displayed as Moisturising) Shea Butter to Raw Shea Butter in the catalog and importer; preserve its SKU, category, other details, availability and existing saved wishlist references.

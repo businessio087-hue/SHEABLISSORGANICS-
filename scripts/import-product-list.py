@@ -14,7 +14,7 @@ import re
 import openpyxl
 
 NAMES = {
-    1: 'Moisturising Shea Butter', 2: 'Water-Based Shea Butter Lotion',
+    1: 'Raw Shea Butter', 2: 'Water-Based Shea Butter Lotion',
     3: 'Papaya Body Cream', 4: 'Avocado Face & Body Cream',
     5: 'Shea & Lemon Hand Cream', 6: 'Shea & Cocoa Intensive Hand Cream',
     7: 'Shea & Coffee Reviving Hand Cream', 8: 'Pure Cocoa Butter',
