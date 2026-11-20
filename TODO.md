@@ -45,3 +45,9 @@
 - [x] Ceramic fade: three vertical image blocks with 6px gutters; each fades opacity 1 to 0 over 700ms with cubic-bezier(0.22,1,0.36,1), staggered at 0/150/300ms to reveal the next image below. Copy fades out for 300ms, swaps and fades in for 500ms from +12px. Reduced motion uses a simple crossfade without translation or stagger.
 - [x] Autoplay every six seconds, looping; pause on hover and resume on leave. Numbered selectors jump using the same transition. Include accessible pause/focus handling, reliable latest-input transitions and safe image loading so interaction cannot leave mismatched text or blank imagery.
 - [x] Used in reveals matching catalog products and Shop products opens Shop filtered by that material. Match only supported ingredient families, retain category/type filters and account-only hearts/wishlists, preserve all existing product identifiers, prices, unpriced safeguards, checkout, Gmail/Yoco and unrelated sections.
+
+## Raw-material carousel controls and motion refinement
+- [x] Replace the autoplay text control with U+23F5/U+23F8 symbols that switch on click while retaining an accessible label.
+- [x] On touch devices, support horizontal swipe navigation across the image carousel and press-and-hold pause/resume without hijacking vertical page scrolling.
+- [x] Add origin-aware, interruptible transitions, stable layout geometry, progressive shared-element transitions and the supplied OKLCH palette.
+- [x] Add a 3–4px linear progress bar below the image carousel, synchronized to one configurable 5000ms autoplay duration; pause/resume it with hover, hold and pause control, reset it on manual selection, loop it with the slides, and simplify it under reduced motion.

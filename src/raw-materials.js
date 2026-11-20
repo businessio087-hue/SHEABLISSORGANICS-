@@ -3,36 +3,46 @@ import { getProductsByMaterial, getProductName, getProductCategories } from '../
 
 // These are the deliberately slow, user-specified editorial timings, not UI defaults.
 export const MATERIAL_TIMING = Object.freeze({
-  autoplay: 6000, image: 700, stagger: 150, copyOut: 300, copyIn: 500,
+  autoplay: 5000, image: 700, stagger: 150, copyOut: 300, copyIn: 500,
   reducedImage: 200, reducedCopy: 100, decodeTimeout: 4000,
 });
 
-/** One timeout, with independently owned pause reasons. Resuming starts a full dwell. */
+/** One timeout, with independently owned pause reasons and preserved remaining dwell. */
 export function createAutoplayScheduler({ onTick, onChange = () => {}, delay = MATERIAL_TIMING.autoplay,
-  setTimer = setTimeout, clearTimer = clearTimeout }) {
+  setTimer = setTimeout, clearTimer = clearTimeout, now = Date.now }) {
   const reasons = new Set(['initializing']);
   let timer = null;
   let disposed = false;
-  const clear = () => { if (timer !== null) clearTimer(timer); timer = null; };
+  let deadline = 0;
+  let remaining = delay;
+  const clear = () => { if (timer !== null) clearTimer(timer); timer = null; deadline = 0; };
   const arm = () => {
     if (disposed || reasons.size || timer !== null) return;
+    deadline = now() + remaining;
     timer = setTimer(() => {
       timer = null;
+      deadline = 0;
+      remaining = delay;
       onTick();
       arm();
-    }, delay);
+    }, remaining);
   };
-  const notify = () => onChange({ paused: disposed || reasons.size > 0, reasons: [...reasons] });
+  const progress = () => 1 - Math.max(0, timer === null ? remaining : deadline - now()) / delay;
+  const notify = (meta = {}) => onChange({ paused: disposed || reasons.size > 0, reasons: [...reasons], progress: progress(), ...meta });
   return {
     pause(reason, paused = true) {
       if (disposed || reasons.has(reason) === paused) return;
-      if (paused) reasons.add(reason); else reasons.delete(reason);
+      if (paused) {
+        if (timer !== null) remaining = Math.max(0, deadline - now());
+        reasons.add(reason);
+      } else reasons.delete(reason);
       clear(); arm(); notify();
     },
-    reset() { clear(); arm(); notify(); },
+    reset() { clear(); remaining = delay; arm(); notify({ reset: true }); },
     dispose() { disposed = true; clear(); notify(); },
     get paused() { return disposed || reasons.size > 0; },
     get reasons() { return [...reasons]; },
+    get progress() { return progress(); },
   };
 }
 
@@ -75,10 +85,16 @@ export function createLatestMaterialController({ ids, initialId = ids[0], load, 
       if (!live()) return false;
       await transition(id, {
         signal, isCurrent: live,
+        direction: options.direction || 'next',
         commit() {
           if (!live()) return false;
           current = id;
-          onCommit(id);
+          const update = () => onCommit(id);
+          if (typeof document !== 'undefined' && typeof window !== 'undefined'
+            && typeof document.startViewTransition === 'function'
+            && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            try { document.startViewTransition(update); } catch { update(); }
+          } else update();
           return true;
         },
       });
@@ -160,6 +176,7 @@ function createImageLoader() {
 
 export function initializeRawMaterials(root) {
   if (!root || !RAW_MATERIALS.length) return null;
+  root.style.setProperty('--material-duration', `${MATERIAL_TIMING.autoplay}ms`);
   const byId = new Map(RAW_MATERIALS.map((material) => [material.id, material]));
   const ids = [...byId.keys()];
   const frame = root.querySelector('[data-material-image]');
@@ -172,6 +189,10 @@ export function initializeRawMaterials(root) {
   const shop = root.querySelector('[data-material-shop]');
   const selectors = root.querySelector('[data-material-selectors]');
   const pause = root.querySelector('[data-material-pause]');
+  const pauseSymbol = root.querySelector('[data-material-pause-symbol]');
+  const pauseLabel = root.querySelector('[data-material-pause-label]');
+  const progress = root.querySelector('[data-material-progress]');
+  const progressFill = root.querySelector('[data-material-progress-fill]');
   const status = root.querySelector('[data-material-status]');
   const outgoing = [...frame.querySelectorAll('[data-material-outgoing]')];
   const incoming = [...frame.querySelectorAll('[data-material-incoming]')];
@@ -187,6 +208,25 @@ export function initializeRawMaterials(root) {
   let cleanup = [];
   let observer = null;
   let autoplayIndex = 0;
+  let gesture = null;
+  const swipeThreshold = 48;
+  const holdDelay = 420;
+  let progressFrame = null;
+  const setProgressValue = (value) => {
+    if (progress) progress.setAttribute('aria-valuenow', String(Math.round(Math.max(0, Math.min(1, value)) * 100)));
+  };
+  const stopProgressFrame = () => {
+    if (progressFrame !== null) cancelAnimationFrame(progressFrame);
+    progressFrame = null;
+  };
+  const syncProgressFrame = () => {
+    setProgressValue(scheduler.progress);
+    if (!scheduler.paused) progressFrame = requestAnimationFrame(syncProgressFrame);
+  };
+  const startProgressFrame = () => {
+    stopProgressFrame();
+    if (typeof requestAnimationFrame === 'function') progressFrame = requestAnimationFrame(syncProgressFrame);
+  };
   const number = (index) => String(index + 1).padStart(2, '0');
 
   for (const [index, material] of RAW_MATERIALS.entries()) {
@@ -289,11 +329,21 @@ export function initializeRawMaterials(root) {
       // this 6s tick. A throttled browser must never overlap an active request.
       if (controller.busy) return;
       autoplayIndex = (autoplayIndex + 1) % ids.length;
-      controller.request(ids[autoplayIndex]);
+      root.dataset.materialDirection = 'next';
+      controller.request(ids[autoplayIndex], { direction: 'next' });
     },
-    onChange: ({ paused, reasons }) => {
+    onChange: ({ paused, reasons, progress: progressValue, reset }) => {
       root.dataset.materialAutoplay = paused ? 'paused' : 'running';
       root.dataset.materialPauseReasons = reasons.join(' ');
+      setProgressValue(progressValue);
+      if (progress) {
+        if (reset && progressFill) {
+          progressFill.style.animation = 'none';
+          void progressFill.offsetWidth;
+          progressFill.style.animation = '';
+        }
+      }
+      if (paused) stopProgressFrame(); else startProgressFrame();
     },
   });
   controller = createLatestMaterialController({
@@ -302,8 +352,8 @@ export function initializeRawMaterials(root) {
     onBusy: (busy, id) => {
       root.dataset.materialState = busy ? 'loading' : 'idle';
       root.dataset.materialTarget = id;
-      // Reset at the START, not the end: normal autoplay starts are 6000ms
-      // apart rather than accidentally becoming 6000ms + the transition.
+      // Reset at the START, not the end: normal autoplay starts are 5000ms
+      // apart rather than accidentally becoming 5000ms + the transition.
       if (busy) scheduler.reset();
     },
     onSettled: (id, { manual, changed }) => {
@@ -329,9 +379,15 @@ export function initializeRawMaterials(root) {
     if (media.addEventListener) listen(media, 'change', handler);
     else { media.addListener(handler); cleanup.push(() => media.removeListener(handler)); }
   }
-  function select(id) {
+  function directionFor(id) {
+    const from = ids.indexOf(controller.current);
+    const to = ids.indexOf(id);
+    return (to - from + ids.length) % ids.length <= ids.length / 2 ? 'next' : 'previous';
+  }
+  function select(id, direction = directionFor(id)) {
     status.textContent = '';
-    controller.request(id, { manual: true });
+    root.dataset.materialDirection = direction;
+    controller.request(id, { manual: true, direction });
   }
   function syncVisibility() { scheduler.pause('hidden', document.hidden); }
   function syncFocus() { scheduler.pause('focus', root.contains(document.activeElement)); }
@@ -358,7 +414,7 @@ export function initializeRawMaterials(root) {
       if (target === null) return;
       event.preventDefault();
       buttons.get(ids[target]).focus();
-      select(ids[target]);
+      select(ids[target], target > index ? 'next' : 'previous');
     });
     listen(used, 'click', () => {
       const open = used.getAttribute('aria-expanded') !== 'true';
@@ -370,9 +426,42 @@ export function initializeRawMaterials(root) {
     listen(pause, 'click', () => {
       const explicit = pause.getAttribute('aria-pressed') !== 'true';
       pause.setAttribute('aria-pressed', String(explicit));
-      pause.textContent = explicit ? 'Resume autoplay' : 'Pause autoplay';
+      pauseSymbol.textContent = explicit ? '\u23F5' : '\u23F8';
+      pauseLabel.textContent = explicit ? 'Resume autoplay' : 'Pause autoplay';
+      pause.setAttribute('aria-label', pauseLabel.textContent);
       scheduler.pause('explicit', explicit);
     });
+    const clearGesture = (event) => {
+      if (!gesture || (event && event.pointerId !== gesture.pointerId)) return;
+      clearTimeout(gesture.holdTimer);
+      if (gesture.holdPaused) scheduler.pause('hold', false);
+      const { startX, startY, lastX, lastY } = gesture;
+      const dx = lastX - startX;
+      const dy = lastY - startY;
+      const swiped = Math.abs(dx) >= swipeThreshold && Math.abs(dx) > Math.abs(dy);
+      gesture = null;
+      if (event?.pointerId !== undefined && frame.hasPointerCapture?.(event.pointerId)) frame.releasePointerCapture(event.pointerId);
+      if (swiped) {
+        const currentIndex = ids.indexOf(controller.current);
+        const target = dx < 0 ? (currentIndex + 1) % ids.length : (currentIndex + ids.length - 1) % ids.length;
+        select(ids[target], dx < 0 ? 'next' : 'previous');
+      }
+    };
+    listen(frame, 'pointerdown', (event) => {
+      if (event.pointerType === 'mouse' || !event.isPrimary) return;
+      if (event.target.closest('button, a, input, select, textarea')) return;
+      gesture = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, lastX: event.clientX, lastY: event.clientY, holdPaused: false,
+        holdTimer: setTimeout(() => { if (gesture) { gesture.holdPaused = true; scheduler.pause('hold', true); } }, holdDelay) };
+      frame.setPointerCapture?.(event.pointerId);
+    });
+    listen(frame, 'pointermove', (event) => {
+      if (!gesture || event.pointerId !== gesture.pointerId) return;
+      gesture.lastX = event.clientX; gesture.lastY = event.clientY;
+      if (Math.abs(event.clientX - gesture.startX) > 12 || Math.abs(event.clientY - gesture.startY) > 12) clearTimeout(gesture.holdTimer);
+    });
+    listen(frame, 'pointerup', clearGesture);
+    listen(frame, 'pointercancel', clearGesture);
+    listen(frame, 'lostpointercapture', clearGesture);
     listen(root, 'pointerenter', (event) => {
       if (event.pointerType === 'mouse' && hover.matches) scheduler.pause('hover', true);
     });
@@ -407,12 +496,14 @@ export function initializeRawMaterials(root) {
     scheduler.pause('hover', hover.matches && root.matches(':hover'));
     scheduler.pause('details', !products.hidden);
     scheduler.pause('explicit', pause.getAttribute('aria-pressed') === 'true');
+    pauseSymbol.textContent = pause.getAttribute('aria-pressed') === 'true' ? '\u23F5' : '\u23F8';
     scheduler.pause('pagehide', false);
     scheduler.pause('initializing', false);
     preloadNext(controller.current);
   }
   function deactivate() {
     active = false;
+    stopProgressFrame();
     scheduler.pause('pagehide', true);
     controller.cancel();
     loader.dispose();

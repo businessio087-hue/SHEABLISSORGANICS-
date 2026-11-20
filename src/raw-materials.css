@@ -1,7 +1,25 @@
+:root {
+  --sheabliss-stone: #918574;
+  --sheabliss-clay: #9F958A;
+  --sheabliss-cream: #E0D9D3;
+  --sheabliss-espresso: #524639;
+  --sheabliss-ink: #171614;
+}
+
+@supports (color: oklch(0% 0 0)) {
+  :root {
+    --sheabliss-stone: oklch(0.6226 0.0287 76.65);
+    --sheabliss-clay: oklch(0.6753 0.0198 70.13);
+    --sheabliss-cream: oklch(0.8892 0.0112 63.34);
+    --sheabliss-espresso: oklch(0.4025 0.0266 69.20);
+    --sheabliss-ink: oklch(0.2005 0.0042 84.59);
+  }
+}
+
 .raw-materials {
   --material-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  background: var(--cream, #f0e9dc);
-  color: #2B2220;
+  background: var(--sheabliss-cream);
+  color: var(--sheabliss-espresso);
   padding: clamp(80px, 10vw, 150px) clamp(20px, 8vw, 140px);
   scroll-margin-top: 32px;
 }
@@ -24,16 +42,25 @@
   align-items: center;
 }
 
+.raw-materials-media {
+  min-width: 0;
+  contain: layout paint;
+}
+
 .raw-materials-image {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
   aspect-ratio: 4 / 5;
   margin: 0;
-  background: var(--cream, #f0e9dc);
+  background: var(--sheabliss-cream);
   overflow: hidden;
   isolation: isolate;
+  touch-action: pan-y;
+  cursor: grab;
+  view-transition-name: raw-materials-image;
 }
+.raw-materials-image:active { cursor: grabbing; }
 
 .raw-materials-block {
   position: relative;
@@ -75,7 +102,12 @@
   padding-left: clamp(30px, 5.5vw, 80px);
 }
 
-.raw-materials-copy { opacity: 1; transform: translateY(0); }
+.raw-materials-copy {
+  min-height: clamp(360px, 35vw, 460px);
+  opacity: 1;
+  transform: translateY(0);
+  view-transition-name: raw-materials-copy;
+}
 .raw-materials-counter {
   margin: 0 0 25px;
   font-size: 11px;
@@ -91,7 +123,7 @@
   font-size: clamp(38px, 4.6vw, 70px);
   line-height: .98;
   letter-spacing: -.045em;
-  color: #2B2220;
+  color: var(--sheabliss-ink);
   overflow-wrap: break-word;
 }
 
@@ -122,14 +154,24 @@
   text-align: left;
 }
 
-.raw-materials-used-symbol { color: var(--terracotta-deep, #8f3f30); font-size: 19px; }
+.raw-materials-used-panel {
+  position: relative;
+  z-index: 2;
+}
+.raw-materials-used-symbol { color: var(--sheabliss-stone); font-size: 19px; }
 .raw-materials-products {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 3;
   list-style: none;
   padding: 4px 0 16px;
   margin: 0;
   max-width: 440px;
+  width: min(440px, 100%);
   max-height: 280px;
   overflow-y: auto;
+  background: var(--sheabliss-cream);
   scrollbar-width: thin;
 }
 .raw-materials-products a {
@@ -153,7 +195,7 @@
   font-size: 11px;
   letter-spacing: .12em;
   text-transform: uppercase;
-  color: #2B2220;
+  color: var(--sheabliss-ink);
   text-underline-offset: 6px;
 }
 
@@ -182,7 +224,34 @@
   letter-spacing: .1em;
   color: var(--ink-soft, #5d4b42);
 }
+.raw-materials-pause [data-material-pause-symbol] { display: block; font-size: 21px; line-height: 1; }
+.raw-materials-pause[aria-pressed="true"] { color: var(--sheabliss-espresso); }
 
+.raw-materials-progress {
+  height: 4px;
+  margin-top: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .3);
+  border-radius: 999px;
+}
+.raw-materials-progress-fill {
+  display: block;
+  width: 0%;
+  height: 100%;
+  background: var(--sheabliss-espresso);
+  transform-origin: left center;
+  animation-name: raw-material-progress;
+  animation-duration: var(--material-duration, 5000ms);
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+  animation-play-state: paused;
+}
+.raw-materials[data-material-autoplay="running"] .raw-materials-progress-fill { animation-play-state: running; }
+.raw-materials[data-material-autoplay="paused"] .raw-materials-progress-fill { animation-play-state: paused; }
+@keyframes raw-material-progress { from { width: 0%; } to { width: 100%; } }
+
+.raw-materials[data-material-direction="next"] { --material-copy-origin: 12px; }
+.raw-materials[data-material-direction="previous"] { --material-copy-origin: -12px; }
 .raw-materials :is(button, a):focus-visible {
   outline: 2px solid var(--terracotta-deep, #8f3f30);
   outline-offset: 4px;
@@ -204,14 +273,19 @@
 }
 .raw-materials[data-material-copy-phase="enter-ready"] .raw-materials-copy {
   opacity: 0;
-  transform: translateY(12px);
+  transform: translateX(var(--material-copy-origin, 12px));
   transition: none;
 }
 .raw-materials[data-material-copy-phase="enter"] .raw-materials-copy {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateX(0);
   transition: opacity 500ms var(--material-ease), transform 500ms var(--material-ease);
 }
+
+::view-transition-old(raw-materials-copy),
+::view-transition-new(raw-materials-copy),
+::view-transition-old(raw-materials-image),
+::view-transition-new(raw-materials-image) { animation-duration: 240ms; }
 
 /* Specific !important durations intentionally override the existing global
    reduced-motion reset, retaining the requested accessible short crossfade. */
@@ -224,6 +298,11 @@
   transition-property: opacity !important;
   transition-duration: 100ms !important;
   transition-delay: 0ms !important;
+}
+.raw-materials[data-material-reduced="true"] .raw-materials-progress-fill {
+  animation: none !important;
+  width: 100%;
+  opacity: .55;
 }
 .raw-materials[data-material-reset="true"] :is(.raw-materials-copy, .raw-materials-outgoing),
 .raw-materials[data-material-copy-phase="enter-ready"] .raw-materials-copy {
@@ -242,10 +321,18 @@
   border: 0;
 }
 
+.raw-materials :is(.raw-materials-description, .raw-materials-products a, .raw-materials-selector, .raw-materials-pause) {
+  color: var(--sheabliss-espresso);
+}
+.raw-materials :is(.raw-materials-counter, .raw-materials-used-symbol, .raw-materials-selector[aria-pressed="true"]) {
+  color: var(--sheabliss-stone);
+}
+
 @media (max-width: 750px) {
   .raw-materials { padding: 80px 20px 90px; }
   .raw-materials-layout { grid-template-columns: minmax(0, 1fr); gap: 36px; }
   .raw-materials-image { width: 100%; }
+  .raw-materials-copy { min-height: 0; }
   .raw-materials-content { padding-left: 0; }
   .raw-materials-name { font-size: clamp(42px, 9vw, 64px); }
   .raw-materials-description { max-width: 540px; font-size: 14px; }

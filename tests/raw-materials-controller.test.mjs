@@ -24,17 +24,18 @@ function fakeClock() {
       now = end;
     },
     get count() { return tasks.size; },
+    get time() { return now; },
   };
 }
 
 test('editorial timings match the requested values', () => {
   assert.deepEqual(MATERIAL_TIMING, {
-    autoplay: 6000, image: 700, stagger: 150, copyOut: 300, copyIn: 500,
+    autoplay: 5000, image: 700, stagger: 150, copyOut: 300, copyIn: 500,
     reducedImage: 200, reducedCopy: 100, decodeTimeout: 4000,
   });
 });
 
-test('autoplay has one timer, a full 6000ms dwell and independent pause reasons', () => {
+test('autoplay has one timer, a full 5000ms dwell and independent pause reasons', () => {
   const clock = fakeClock();
   let ticks = 0;
   const scheduler = createAutoplayScheduler({ onTick: () => ticks++, setTimer: clock.setTimer, clearTimer: clock.clearTimer });
@@ -42,14 +43,14 @@ test('autoplay has one timer, a full 6000ms dwell and independent pause reasons'
   scheduler.pause('initializing', false);
   scheduler.reset(); scheduler.reset();
   assert.equal(clock.count, 1);
-  clock.advance(5999); assert.equal(ticks, 0);
+  clock.advance(4999); assert.equal(ticks, 0);
   clock.advance(1); assert.equal(ticks, 1); assert.equal(clock.count, 1);
   scheduler.pause('hover'); scheduler.pause('focus'); scheduler.pause('details');
   assert.equal(clock.count, 0);
   scheduler.pause('hover', false); scheduler.pause('focus', false);
   clock.advance(12000); assert.equal(ticks, 1);
   scheduler.pause('details', false);
-  clock.advance(5999); assert.equal(ticks, 1);
+  clock.advance(4999); assert.equal(ticks, 1);
   clock.advance(1); assert.equal(ticks, 2);
   scheduler.dispose(); assert.equal(clock.count, 0);
   scheduler.reset(); scheduler.pause('details', false); assert.equal(clock.count, 0);
@@ -62,10 +63,28 @@ test('a synchronous busy pause during a tick cannot create a second timer', () =
     onTick: () => scheduler.pause('transition'), setTimer: clock.setTimer, clearTimer: clock.clearTimer,
   });
   scheduler.pause('initializing', false);
-  clock.advance(6000);
+  clock.advance(5000);
   assert.equal(clock.count, 0);
   scheduler.pause('transition', false);
   assert.equal(clock.count, 1);
+});
+
+test('pause and resume preserve the remaining dwell and progress position', () => {
+  const clock = fakeClock();
+  let ticks = 0;
+  let latestProgress = 0;
+  const scheduler = createAutoplayScheduler({
+    onTick: () => ticks++, onChange: ({ progress }) => { latestProgress = progress; },
+    now: () => clock.time, setTimer: clock.setTimer, clearTimer: clock.clearTimer,
+  });
+  scheduler.pause('initializing', false);
+  clock.advance(2000);
+  scheduler.pause('hold');
+  assert.equal(Math.round(latestProgress * 100), 40);
+  clock.advance(10000);
+  scheduler.pause('hold', false);
+  clock.advance(2999); assert.equal(ticks, 0);
+  clock.advance(1); assert.equal(ticks, 1);
 });
 
 test('latest target wins even when old image decoding resolves last', async () => {
@@ -80,6 +99,16 @@ test('latest target wins even when old image decoding resolves last', async () =
   loading.c.resolve(true); assert.equal(await latest, true);
   loading.b.resolve(true); assert.equal(await old, false);
   assert.equal(controller.current, 'c'); assert.deepEqual(commits, ['c']);
+});
+
+test('manual direction reaches the transition for origin-aware motion', async () => {
+  let direction;
+  const controller = createLatestMaterialController({
+    ids: ['a', 'b'], load: async () => true,
+    transition: async (_id, context) => { direction = context.direction; context.commit(); },
+  });
+  assert.equal(await controller.request('b', { manual: true, direction: 'previous' }), true);
+  assert.equal(direction, 'previous');
 });
 
 test('a stale transition cannot commit after a newer manual request', async () => {
@@ -144,7 +173,7 @@ test('pagehide cancellation prevents late commits and selecting current cancels 
   assert.equal(await controller.request('unknown'), false);
 });
 
-test('autoplay start cadence remains 6000ms rather than adding transition duration', async () => {
+test('autoplay start cadence remains 5000ms rather than adding transition duration', async () => {
   const clock = fakeClock();
   const starts = [];
   const requests = [];
@@ -167,14 +196,14 @@ test('autoplay start cadence remains 6000ms rather than adding transition durati
     onBusy: (busy) => { if (busy) scheduler.reset(); },
   });
   scheduler.pause('initializing', false);
-  logicalNow = 6000; clock.advance(6000);
+  logicalNow = 5000; clock.advance(5000);
   await Promise.resolve();
   assert.equal(controller.busy, true);
-  logicalNow = 7000; clock.advance(1000); await requests[0];
+  logicalNow = 6000; clock.advance(1000); await requests[0];
   assert.equal(clock.count, 1);
-  logicalNow = 11999; clock.advance(4999); assert.deepEqual(starts, [6000]);
-  logicalNow = 12000; clock.advance(1); assert.deepEqual(starts, [6000, 12000]);
+  logicalNow = 9999; clock.advance(3999); assert.deepEqual(starts, [5000]);
+  logicalNow = 10000; clock.advance(1); assert.deepEqual(starts, [5000, 10000]);
   await Promise.resolve();
-  logicalNow = 13000; clock.advance(1000); await requests[1];
+  logicalNow = 11000; clock.advance(1000); await requests[1];
   scheduler.dispose();
 });
