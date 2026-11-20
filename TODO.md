@@ -38,3 +38,10 @@
 
 ## Raw Shea Butter product rename
 - [x] Rename spreadsheet item 1 / BO-CRE-0001 from Moisturised (displayed as Moisturising) Shea Butter to Raw Shea Butter in the catalog and importer; preserve its SKU, category, other details, availability and existing saved wishlist references.
+
+## Dynamic raw-material showcase
+- [x] Replace the existing The Raw Material section with seven editable array-driven slides: Raw Shea Butter, Papaya, Lemon, Cocoa, Moringa Leaf, Roasted Coffee and Avocado, using the supplied descriptions and seven matching AI-generated warm earthy editorial still lifes with no text, logos or hands.
+- [x] Desktop: left 55% portrait 4:5 image and right 45% vertically centered text with counter, material name, description, Used in button, underline-hover Shop products link and numbered manual selectors. Mobile: image above text with the same transition. Retain the established warm palette, serif/sans-serif fonts, deep-brown copy, generous padding and no heavy borders/shadows.
+- [x] Ceramic fade: three vertical image blocks with 6px gutters; each fades opacity 1 to 0 over 700ms with cubic-bezier(0.22,1,0.36,1), staggered at 0/150/300ms to reveal the next image below. Copy fades out for 300ms, swaps and fades in for 500ms from +12px. Reduced motion uses a simple crossfade without translation or stagger.
+- [x] Autoplay every six seconds, looping; pause on hover and resume on leave. Numbered selectors jump using the same transition. Include accessible pause/focus handling, reliable latest-input transitions and safe image loading so interaction cannot leave mismatched text or blank imagery.
+- [x] Used in reveals matching catalog products and Shop products opens Shop filtered by that material. Match only supported ingredient families, retain category/type filters and account-only hearts/wishlists, preserve all existing product identifiers, prices, unpriced safeguards, checkout, Gmail/Yoco and unrelated sections.

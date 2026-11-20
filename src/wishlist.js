@@ -1,4 +1,5 @@
 import { CATALOG, CATEGORY_DEFINITIONS, getProductName, getProductCategories, getProductRange, getStartingPrice, getValidVariants, isPurchasable, getAvailabilityLabel } from '../shared/catalog.mjs';
+import { getRawMaterial } from '../shared/raw-materials.mjs';
 import { getCustomerSession, accountRequest, escapeHtml, customerSnapshot, isCurrentCustomer } from './customer-session.js';
 
 let savedProducts = new Set();
@@ -20,7 +21,7 @@ export function updateHeartButtons() {
 }
 
 // Shared presentation only: wishlist/API/session storage continue to use item.product.
-export function catalogProductCard(item, { index = 0, saved = false, category: contextCategory = null } = {}) {
+export function catalogProductCard(item, { index = 0, saved = false, category: contextCategory = null, material: contextMaterial = null } = {}) {
   const name = getProductName(item);
   const categories = getProductCategories(item).filter((category) => CATEGORY_DEFINITIONS.some((definition) => definition.name === category));
   const primaryCategory = categories.includes(contextCategory) ? contextCategory : categories.includes(item.category) ? item.category : categories[0];
@@ -29,9 +30,11 @@ export function catalogProductCard(item, { index = 0, saved = false, category: c
   const duplicateName = CATALOG.filter((product) => getProductName(product).toLowerCase() === name.toLowerCase()).length > 1;
   const showCode = Boolean(item.code || duplicateName || item.status === 'pending-details');
   const suitableFor = Array.isArray(item.suitableFor) ? item.suitableFor.join(', ') : item.suitableFor;
-  const categoryHref = (category, range) => `/category.html?category=${encodeURIComponent(category)}${range ? `&range=${encodeURIComponent(range)}` : ''}`;
+  const material = getRawMaterial(contextMaterial);
+  const materialQuery = material?.products.includes(item.product) ? `&material=${encodeURIComponent(material.id)}` : '';
+  const categoryHref = (category, range) => `/category.html?category=${encodeURIComponent(category)}${range ? `&range=${encodeURIComponent(range)}` : ''}${materialQuery}`;
   const categoryLinks = categories.map((category) => `<a href="${escapeHtml(categoryHref(category))}">${escapeHtml(category)}</a>`).join(' · ');
-  const rangeHref = primaryCategory ? categoryHref(primaryCategory, productRange) : `/shop.html?range=${encodeURIComponent(productRange)}`;
+  const rangeHref = primaryCategory ? categoryHref(primaryCategory, productRange) : `/shop.html?range=${encodeURIComponent(productRange)}${materialQuery}`;
   const startingPrice = getStartingPrice(item);
   // Approval is catalog-owned. Keep the first original variant's price and size together;
   // do not substitute a lowest-priced size, or create variants for pending records.

@@ -1,7 +1,8 @@
 import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { CATALOG, CATEGORY_DEFINITIONS, getProductsByCategory, getProduct, getProductRange, getProductRanges, getValidVariants, isPurchasable } from '../shared/catalog.mjs';
+import { CATALOG, CATEGORY_DEFINITIONS, getProductsByCategory, getProduct, getProductRange, getProductRanges, getProductMaterials, getProductsByMaterial, getValidVariants, isPurchasable } from '../shared/catalog.mjs';
+import { RAW_MATERIALS, getRawMaterial } from '../shared/raw-materials.mjs';
 
 // These stubs exercise rendering only. They never contact the real API/database or
 // fabricate signed-in customers in Preview; all actual auth tests remain separate.
@@ -26,7 +27,7 @@ function renderCategory(path) {
   const selectors = new Map(['#category-title','#category-description','meta[name="description"]','.category-main .breadcrumbs','#category-products'].map((selector)=>[selector,node()]));
   if (location.pathname==='/shop.html') { const nav=node();nav.className='shop-category-navigation';selectors.set('.shop-category-navigation',nav); }
   const document = {title:'',querySelector:(selector)=>selectors.get(selector)||null,createElement:()=>node()};
-  new Function('CATALOG','CATEGORY_DEFINITIONS','getProductsByCategory','getProductRange','getProductRanges','catalogProductCard','updateHeartButtons','document','location',source)(CATALOG,CATEGORY_DEFINITIONS,getProductsByCategory,getProductRange,getProductRanges,catalogProductCard,()=>{},document,location);
+  new Function('CATALOG','CATEGORY_DEFINITIONS','getProductsByCategory','getProductRange','getProductRanges','getProductMaterials','RAW_MATERIALS','getRawMaterial','catalogProductCard','updateHeartButtons','document','location',source)(CATALOG,CATEGORY_DEFINITIONS,getProductsByCategory,getProductRange,getProductRanges,getProductMaterials,RAW_MATERIALS,getRawMaterial,catalogProductCard,()=>{},document,location);
   const categoryNav=selectors.get('.shop-category-navigation')||created.find((item)=>item.className==='shop-category-navigation');
   return {html:selectors.get('#category-products').innerHTML,categoryNav,created,document};
 }
@@ -97,4 +98,49 @@ test('saved-product cards keep unpriced and duplicate entries safe and distingui
   assert.ok(first.includes('saved-product-card'));
   assert.ok(!first.includes('catalog-product-buy'));
   assert.ok(!second.includes('catalog-product-price'));
+});
+
+
+test('each raw-material Shop link shows only that ingredient family with no duplicate SKUs', () => {
+  for (const material of RAW_MATERIALS) {
+    const view=renderCategory(`/shop.html?material=${material.id}`);
+    assert.deepEqual(productKeys(view.html),getProductsByMaterial(material.id).map((item)=>item.product));
+    assert.equal(new Set(productKeys(view.html)).size,productKeys(view.html).length);
+    assert.ok(view.created.some((node)=>node.className==='catalog-material-note'));
+  }
+});
+test('ingredient filters combine with category and supported ranges; category navigation drops incompatible state', () => {
+  const view=renderCategory('/category.html?category=Body&range=Body%20Butters&material=shea');
+  const expected=getProductsByCategory('Body').filter((item)=>getProductMaterials(item).includes('shea')&&getProductRange(item,'Body')==='Body Butters');
+  assert.deepEqual(productKeys(view.html),expected.map((item)=>item.product));
+  const hair=hrefFor(view.categoryNav.innerHTML,'Hair');
+  assert.equal(hair.searchParams.get('material'),'shea');
+  assert.equal(hair.searchParams.has('range'),false);
+  const health=hrefFor(view.categoryNav.innerHTML,'Health');
+  assert.equal(health.searchParams.has('material'),false);
+  assert.equal(health.searchParams.has('range'),false);
+});
+test('switching ingredients resets only a range that cannot match the new material', () => {
+  const view=renderCategory('/category.html?category=Body&range=Body%20Butters&material=shea');
+  const nav=view.created.find((node)=>node.className.includes('catalog-material-navigation'));
+  const coffee=hrefFor(nav.innerHTML,'Roasted Coffee');
+  assert.equal(coffee.searchParams.get('material'),'coffee');
+  assert.equal(coffee.searchParams.has('range'),false);
+  const cocoa=hrefFor(nav.innerHTML,'Cocoa');
+  assert.equal(cocoa.searchParams.get('range'),'Body Butters');
+});
+test('unknown ingredients cannot fall back to the unfiltered catalog or inject markup', () => {
+  const view=renderCategory('/shop.html?material=%3Cscript%3E');
+  assert.equal(productKeys(view.html).length,0);
+  assert.match(view.html,/reset filter/);
+  assert.ok(!view.document.title.includes('undefined'));
+  assert.equal(hrefFor(view.html,'All products — reset filter').searchParams.has('material'),false);
+});
+test('ingredient context survives card category links without changing wishlist keys or sale eligibility', () => {
+  const pending=getProduct('BO-CRE-0004');
+  const html=catalogProductCard(pending,{material:'avocado'});
+  assert.equal(hrefFor(html,'Skin').searchParams.get('material'),'avocado');
+  assert.equal(hrefFor(html,'Body').searchParams.get('material'),'avocado');
+  assert.ok(html.includes('data-wishlist-product="BO-CRE-0004"'));
+  assert.ok(!html.includes('catalog-product-buy'));
 });

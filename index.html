@@ -129,18 +129,42 @@
         </div>
       </section>
 
-      <section class="ingredients section-terracotta" id="ingredients" aria-labelledby="ingredients-title">
-        <div class="ingredients-head reveal">
-          <p class="eyebrow eyebrow-light">The raw material</p>
+      <section class="raw-materials" id="ingredients" aria-labelledby="ingredients-title" data-raw-materials data-material-current="shea" data-material-state="idle" data-material-fade="false" data-material-copy-phase="idle" data-material-autoplay="paused" role="region" aria-roledescription="carousel" aria-live="off">
+        <div class="raw-materials-heading">
+          <p class="eyebrow">The raw material</p>
           <h2 id="ingredients-title">Nothing extra.<br /><i>Everything intentional.</i></h2>
         </div>
-        <div class="ingredient-grid">
-          <article class="ingredient reveal"><div class="ingredient-icon icon-shea">◒</div><span class="ingredient-num">01</span><h3>Shea</h3><p>Deep nourishment, pressed from the nut and left to do its quiet work.</p></article>
-          <article class="ingredient reveal reveal-delay-1"><div class="ingredient-icon icon-baobab">✳</div><span class="ingredient-num">02</span><h3>Baobab</h3><p>Bright, dry, and full of vitamin-rich comfort for skin that wants balance.</p></article>
-          <article class="ingredient reveal reveal-delay-2"><div class="ingredient-icon icon-marula">◌</div><span class="ingredient-num">03</span><h3>Marula</h3><p>A silky oil with a soft finish — the kind you notice by morning.</p></article>
-          <article class="ingredient reveal reveal-delay-3"><div class="ingredient-icon icon-moringa">⌁</div><span class="ingredient-num">04</span><h3>Moringa</h3><p>Green, grounding, and naturally generous with the scalp and body.</p></article>
+        <div class="raw-materials-layout">
+          <figure class="raw-materials-image" data-material-image role="img" aria-label="Editorial still life of creamy raw shea butter and shea nuts in a carved wooden bowl.">
+            <div class="raw-materials-block">
+              <img class="raw-materials-incoming" data-material-incoming alt="" aria-hidden="true" />
+              <img class="raw-materials-outgoing" data-material-outgoing src="/manus-storage/async-images/KaOGQcWrb4Kv8vbnPG3md4/image-1.webp" alt="" aria-hidden="true" decoding="async" />
+            </div>
+            <div class="raw-materials-block">
+              <img class="raw-materials-incoming" data-material-incoming alt="" aria-hidden="true" />
+              <img class="raw-materials-outgoing" data-material-outgoing src="/manus-storage/async-images/KaOGQcWrb4Kv8vbnPG3md4/image-1.webp" alt="" aria-hidden="true" decoding="async" />
+            </div>
+            <div class="raw-materials-block">
+              <img class="raw-materials-incoming" data-material-incoming alt="" aria-hidden="true" />
+              <img class="raw-materials-outgoing" data-material-outgoing src="/manus-storage/async-images/KaOGQcWrb4Kv8vbnPG3md4/image-1.webp" alt="" aria-hidden="true" decoding="async" />
+            </div>
+          </figure>
+          <div class="raw-materials-content">
+            <div class="raw-materials-copy" id="raw-materials-slide" data-material-copy role="group" aria-roledescription="slide" aria-label="1 of 7: Raw Shea Butter">
+              <p class="raw-materials-counter" data-material-counter>01/07</p>
+              <h3 class="raw-materials-name" data-material-name>Raw Shea Butter</h3>
+              <p class="raw-materials-description" data-material-description>Gathered from the shea trees of northern Uganda, our raw shea butter is unrefined, creamy and rich. It melts on contact, wrapping skin in deep comfort. The heart of our creams, it leaves dry hands feeling velvety, smooth and soft.</p>
+              <button class="raw-materials-used" type="button" data-material-used aria-expanded="false" aria-controls="raw-materials-products">Used in: <span class="raw-materials-used-symbol" data-material-used-symbol aria-hidden="true">+</span></button>
+              <ul class="raw-materials-products" id="raw-materials-products" data-material-products aria-label="Products using this ingredient family" hidden></ul>
+              <a class="raw-materials-shop" data-material-shop href="/shop.html?material=shea">Shop products</a>
+            </div>
+            <div class="raw-materials-controls">
+              <div class="raw-materials-selectors" data-material-selectors role="group" aria-label="Choose a raw material"></div>
+              <button class="raw-materials-pause" type="button" data-material-pause aria-pressed="false">Pause autoplay</button>
+            </div>
+          </div>
         </div>
-        <div class="ingredient-footer"><span>Plant-derived / small-batch / made to be used</span></div>
+        <p class="raw-materials-status" data-material-status role="status" aria-live="polite" aria-atomic="true"></p>
       </section>
 
       <section class="lookbook section-cream" id="journal" aria-labelledby="lookbook-title">
@@ -198,5 +222,6 @@
     </aside>
     <div class="site-notice" role="status" aria-live="polite"></div>
     <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/src/raw-materials.js"></script>
   </body>
 </html>

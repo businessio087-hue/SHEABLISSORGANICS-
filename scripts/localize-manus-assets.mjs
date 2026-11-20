@@ -15,6 +15,7 @@ const sourceFiles = [
   'cookies.html',
   'src/main.js',
   'src/styles.css',
+  'shared/raw-materials.mjs',
   'public/manus-routes.json',
 ];
 

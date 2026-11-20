@@ -1,4 +1,5 @@
 import { SPREADSHEET_PRODUCTS } from './product-list.mjs';
+import { RAW_MATERIALS, getRawMaterial } from './raw-materials.mjs';
 
 export const CATEGORY_DEFINITIONS = [
   { name: 'Body', description: 'Grounding care for body and hands.', subcategories: ['Creams & Lotions', 'Body Butters', 'Hand Creams', 'Soaps', 'Oils', 'Soap-making Ingredients', 'Awaiting confirmation'] },
@@ -54,6 +55,14 @@ export function getProductCategories(item) {
 }
 export function getProductsByCategory(category) {
   return CATALOG.filter((item) => getProductCategories(item).includes(category));
+}
+export function getProductMaterials(itemOrKey) {
+  const item = resolveProduct(itemOrKey);
+  return item ? RAW_MATERIALS.filter((material) => material.products.includes(item.product)).map((material) => material.id) : [];
+}
+export function getProductsByMaterial(id) {
+  const material = getRawMaterial(id);
+  return material ? CATALOG.filter((item) => material.products.includes(item.product)) : [];
 }
 export function getProductRange(item, category = item?.category) {
   return item?.categoryRanges?.[category] || item?.subcategory || '';
