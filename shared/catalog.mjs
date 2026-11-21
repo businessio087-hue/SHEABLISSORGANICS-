@@ -33,7 +33,7 @@ const ESTABLISHED_PRODUCTS = [
     variants: [{ size: '250g', amountZar: 200 }],
   },
   {
-    id: 'mucuna-puriens-beans', product: 'Mucuna Puriens (Beans)', name: 'Mucuna Puriens (Beans)',
+    id: 'mucuna-puriens-beans', product: 'Mucuna Puriens (Beans)', name: 'Mucuna pruriens beans',
     category: 'Health', categories: ['Health'], subcategory: 'Wellness Essentials', productType: 'Wellness Food',
     description: 'Organically grown nootropic beans.', status: 'active', needsReview: false,
     variants: [{ size: '100g', amountZar: 250 }, { size: '200g', amountZar: 150 }],

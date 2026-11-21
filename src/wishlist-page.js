@@ -13,7 +13,7 @@ let renderRevision;
 function renderItems(items) {
   const saved = new Set(items.map((item) => item.product));
   const products = CATALOG.filter((item) => saved.has(item.product));
-  grid.innerHTML = products.length ? products.map((item) => catalogProductCard(item, { saved: true })).join('') : '<div class="wishlist-empty"><h2>Your wishlist is quiet for now.</h2><p>Tap a product heart to keep a ritual here.</p><a class="line-link" href="/shop.html">Explore the shop</a></div>';
+  grid.innerHTML = products.length ? products.map((item) => catalogProductCard(item, { saved: true })).join('') : '<div class="wishlist-empty"><h2>Your wishlist is quiet for now.</h2><p>Tap a product heart to keep a ritual here.</p><a class="line-link" href="/shop/">Explore the shop</a></div>';
   updateHeartButtons();
 }
 function hideWishlist() {

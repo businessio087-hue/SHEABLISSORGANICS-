@@ -7,8 +7,10 @@ const params = new URLSearchParams(location.search);
 const requestedCategory = params.get('category') || 'Body';
 const requestedRange = params.get('range') || '';
 const requestedMaterial = params.get('material') || '';
-const pageIsShop = location.pathname.endsWith('/shop.html');
-const definition = CATEGORY_DEFINITIONS.find((item) => item.name.toLowerCase() === requestedCategory.toLowerCase());
+const cleanSlug = location.pathname.split('/').filter(Boolean)[0]?.toLowerCase();
+const cleanCategory = { body: 'Body', hair: 'Hair', skin: 'Skin', health: 'Health' }[cleanSlug];
+const pageIsShop = location.pathname === '/shop/' || location.pathname.endsWith('/shop.html');
+const definition = CATEGORY_DEFINITIONS.find((item) => item.name.toLowerCase() === (cleanCategory || requestedCategory).toLowerCase());
 const category = pageIsShop ? null : definition?.name;
 const label = pageIsShop ? 'Shop' : category || 'Products';
 const selectedMaterial = getRawMaterial(requestedMaterial);
@@ -34,7 +36,8 @@ function catalogHref(categoryName = null, range = '', material = selectedMateria
   if (categoryName) query.set('category', categoryName);
   if (range) query.set('range', range);
   if (material) query.set('material', material);
-  return `${categoryName ? '/category.html' : '/shop.html'}${query.size ? `?${query}` : ''}`;
+  const base = categoryName ? `/${{ Body: 'body', Hair: 'hair', Skin: 'skin', Health: 'health' }[categoryName] || 'category.html'}/` : '/shop/';
+  return `${base}${query.size ? `?${query}` : ''}`;
 }
 function navigationLink(text, href, current = false) {
   return `<a href="${escapeHtml(href)}"${current ? ' aria-current="page"' : ''}>${escapeHtml(text)}</a>`;
@@ -45,12 +48,16 @@ document.title = `${selectedMaterial ? `${selectedMaterial.name} — ` : ''}${se
 document.querySelector('#category-title').textContent = label;
 document.querySelector('#category-description').textContent = description;
 document.querySelector('meta[name="description"]').content = `${label} — ${selectedMaterial ? `${selectedMaterial.name}. ` : ''}${description}`;
+const canonicalHref = pageIsShop ? 'https://sheabliss.co.za/shop/' : `https://sheabliss.co.za/${{ Body: 'body', Hair: 'hair', Skin: 'skin', Health: 'health' }[category] || 'category.html'}/`;
+let canonical = document.querySelector('link[rel="canonical"]');
+if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head?.append(canonical); }
+canonical.href = canonicalHref;
 const breadcrumbs = document.querySelector('.category-main .breadcrumbs');
 const crumbs = ['<a href="/">Home</a>'];
 if (pageIsShop) {
-  crumbs.push(activeFilter ? '<a id="category-breadcrumb" href="/shop.html">Shop</a>' : '<span id="category-breadcrumb" aria-current="page">Shop</span>');
+  crumbs.push(activeFilter ? '<a id="category-breadcrumb" href="/shop/">Shop</a>' : '<span id="category-breadcrumb" aria-current="page">Shop</span>');
 } else {
-  crumbs.push('<a href="/shop.html">Shop</a>');
+  crumbs.push('<a href="/shop/">Shop</a>');
   crumbs.push(activeFilter ? `<a id="category-breadcrumb" href="${escapeHtml(catalogHref(category, '', ''))}">${escapeHtml(label)}</a>` : `<span id="category-breadcrumb" aria-current="page">${escapeHtml(label)}</span>`);
 }
 if (requestedRange) {

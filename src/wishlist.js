@@ -8,6 +8,13 @@ let savedRevision = 0;
 let activeOwner;
 const heartIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></svg>';
 const currentItems = () => [...savedProducts].map((product) => ({ product }));
+const categorySlugs = Object.freeze({ Body: 'body', Hair: 'hair', Skin: 'skin', Health: 'health' });
+const productSlugs = Object.freeze({
+  'Organic Sheabutter': 'organic-shea-butter',
+  'Hair Butter': 'hair-butter',
+  'Mucuna Puriens (Beans)': 'mucuna-pruriens-beans',
+});
+const productHref = (item) => productSlugs[item?.product] ? `/shop/${productSlugs[item.product]}/` : null;
 
 export function heartButton(product) {
   return `<button class="wishlist-heart" type="button" data-wishlist-product="${escapeHtml(product)}" aria-label="Save ${escapeHtml(getProductName(product))} to your wishlist" aria-pressed="false">${heartIcon}</button>`;
@@ -32,7 +39,7 @@ export function catalogProductCard(item, { index = 0, saved = false, category: c
   const suitableFor = Array.isArray(item.suitableFor) ? item.suitableFor.join(', ') : item.suitableFor;
   const material = getRawMaterial(contextMaterial);
   const materialQuery = material?.products.includes(item.product) ? `&material=${encodeURIComponent(material.id)}` : '';
-  const categoryHref = (category, range) => `/category.html?category=${encodeURIComponent(category)}${range ? `&range=${encodeURIComponent(range)}` : ''}${materialQuery}`;
+  const categoryHref = (category, range) => `${categorySlugs[category] ? `/${categorySlugs[category]}/` : '/shop/'}${range || materialQuery ? `?${new URLSearchParams({ ...(range ? { range } : {}), ...(material ? { material: material.id } : {}) })}` : ''}`;
   const categoryLinks = categories.map((category) => `<a href="${escapeHtml(categoryHref(category))}">${escapeHtml(category)}</a>`).join(' · ');
   const rangeHref = primaryCategory ? categoryHref(primaryCategory, productRange) : `/shop.html?range=${encodeURIComponent(productRange)}${materialQuery}`;
   const startingPrice = getStartingPrice(item);
@@ -49,7 +56,7 @@ export function catalogProductCard(item, { index = 0, saved = false, category: c
   return `<article class="${saved ? 'saved-product-card' : 'category-product'} catalog-product-card catalog-product-${escapeHtml(tone)}">
     <div class="catalog-product-head"><span class="catalog-product-kicker">${saved ? 'Saved ritual' : `${String(index + 1).padStart(2, '0')} / SHEABLISS`}</span>${heartButton(item.product)}</div>
     ${showCode ? `<p class="catalog-product-code">SKU ${escapeHtml(item.code || item.product)}</p>` : ''}
-    <h2>${escapeHtml(name)}</h2>
+    <h2>${productHref(item) ? `<a class="catalog-product-name" href="${productHref(item)}">${escapeHtml(name)}</a>` : escapeHtml(name)}</h2>
     ${item.description ? `<p class="catalog-product-description">${escapeHtml(item.description)}</p>` : ''}
     <dl class="catalog-product-facts">
       <div><dt>Category</dt><dd>${categoryLinks || 'Category being confirmed'}</dd></div>
