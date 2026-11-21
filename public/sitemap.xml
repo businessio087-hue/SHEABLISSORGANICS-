@@ -1,33 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
   <url>
-    <loc>https://sheabliss.co.za/</loc>
+       <loc>https://sheabliss.co.za/</loc>
+       <lastmod>2026-11-21T11:31:51+00:00</lastmod>
+       <priority>1.0000</priority>
   </url>
   <url>
-    <loc>https://sheabliss.co.za/shop.html</loc>
+       <loc>https://sheabliss.co.za/shop.html</loc>
+       <lastmod>2026-11-21T11:31:51+00:00</lastmod>
+       <priority>0.8000</priority>
   </url>
   <url>
-    <loc>https://sheabliss.co.za/category.html?category=Body</loc>
+       <loc>https://sheabliss.co.za/category.html?category=Body</loc>
+       <lastmod>2026-11-21T11:31:51+00:00</lastmod>
+       <priority>0.8000</priority>
   </url>
   <url>
-    <loc>https://sheabliss.co.za/category.html?category=Hair</loc>
+       <loc>https://sheabliss.co.za/category.html?category=Hair</loc>
+       <lastmod>2026-11-21T11:31:51+00:00</lastmod>
+       <priority>0.8000</priority>
   </url>
   <url>
-    <loc>https://sheabliss.co.za/category.html?category=Skin</loc>
+       <loc>https://sheabliss.co.za/category.html?category=Skin</loc>
+       <lastmod>2026-11-21T11:31:51+00:00</lastmod>
+       <priority>0.8000</priority>
   </url>
   <url>
-    <loc>https://sheabliss.co.za/category.html?category=Health</loc>
+       <loc>https://sheabliss.co.za/category.html?category=Health</loc>
+       <lastmod>2026-11-21T11:31:51+00:00</lastmod>
+       <priority>0.8000</priority>
   </url>
   <url>
-    <loc>https://sheabliss.co.za/about.html</loc>
+       <loc>https://sheabliss.co.za/about.html</loc>
+       <lastmod>2026-11-21T11:31:51+00:00</lastmod>
+       <priority>0.8000</priority>
   </url>
   <url>
-    <loc>https://sheabliss.co.za/privacy.html</loc>
+       <loc>https://sheabliss.co.za/shop.html?material=shea</loc>
+       <lastmod>2026-11-21T11:31:51+00:00</lastmod>
+       <priority>0.8000</priority>
   </url>
   <url>
-    <loc>https://sheabliss.co.za/cookies.html</loc>
+       <loc>https://sheabliss.co.za/cookies.html</loc>
+       <lastmod>2026-11-21T11:31:51+00:00</lastmod>
+       <priority>0.8000</priority>
   </url>
   <url>
-    <loc>https://sheabliss.co.za/terms.html</loc>
+       <loc>https://sheabliss.co.za/terms.html</loc>
+       <lastmod>2026-11-21T11:31:51+00:00</lastmod>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://sheabliss.co.za/privacy.html</loc>
+       <lastmod>2026-11-21T11:31:51+00:00</lastmod>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://sheabliss.co.za/?bag=open</loc>
+       <lastmod>2026-11-21T11:31:51+00:00</lastmod>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://sheabliss.co.za/category.html?category=Body&amp;material=shea</loc>
+       <lastmod>2026-11-21T11:31:51+00:00</lastmod>
+       <priority>0.4096</priority>
+  </url>
+  <url>
+       <loc>https://sheabliss.co.za/category.html?category=Hair&amp;material=shea</loc>
+       <lastmod>2026-11-21T11:31:51+00:00</lastmod>
+       <priority>0.4096</priority>
+  </url>
+  <url>
+       <loc>https://sheabliss.co.za/category.html?category=Skin&amp;material=shea</loc>
+       <lastmod>2026-11-21T11:31:51+00:00</lastmod>
+       <priority>0.4096</priority>
   </url>
 </urlset>
