@@ -117,20 +117,24 @@
 .raw-materials-used {
   display: inline-flex;
   align-items: center;
-  gap: 14px;
-  font-size: 13px;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 13px;
+  border: 1px solid rgba(43, 29, 25, .28);
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
   text-align: left;
+  transition: gap .3s var(--material-ease), padding .3s var(--material-ease), color .3s ease, border-color .3s ease;
 }
 
-.raw-materials-used-symbol { color: var(--terracotta-deep, #8f3f30); font-size: 19px; }
+.raw-materials-used-symbol { color: var(--terracotta-deep, #8f3f30); font-size: 17px; line-height: 1; }
 .raw-materials-products {
   list-style: none;
   padding: 4px 0 16px;
   margin: 0;
   max-width: 440px;
-  max-height: 280px;
-  overflow-y: auto;
-  scrollbar-width: thin;
 }
 .raw-materials-products a {
   display: flex;
@@ -193,8 +197,15 @@
 @media (hover: hover) and (pointer: fine) {
   .raw-materials-shop:hover { text-decoration: underline; }
   .raw-materials-products a:hover { color: var(--terracotta-deep, #8f3f30); }
-  .raw-materials :is(.raw-materials-selector, .raw-materials-pause, .raw-materials-used):hover {
+  .raw-materials :is(.raw-materials-selector, .raw-materials-pause):hover {
     color: var(--terracotta-deep, #8f3f30);
+  }
+  .raw-materials-used:hover,
+  .raw-materials-used:focus-visible {
+    gap: 12px;
+    padding-inline: 17px;
+    color: var(--terracotta-deep, #8f3f30);
+    border-color: currentColor;
   }
 }
 
