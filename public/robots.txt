@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /account.html
+Disallow: /wishlist.html
+Disallow: /api/
+Disallow: /manus-oauth/
+
+Sitemap: https://sheabliss-dvmdn63o.manus.space/sitemap.xml
