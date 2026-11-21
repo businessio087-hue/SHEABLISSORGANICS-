@@ -3,7 +3,7 @@ import { getProductsByMaterial, getProductName, getProductCategories } from '../
 
 // These are the deliberately slow, user-specified editorial timings, not UI defaults.
 export const MATERIAL_TIMING = Object.freeze({
-  autoplay: 6000, image: 700, stagger: 150, copyOut: 300, copyIn: 500,
+  autoplay: 8000, image: 700, stagger: 150, copyOut: 300, copyIn: 500,
   reducedImage: 200, reducedCopy: 100, decodeTimeout: 4000,
 });
 
@@ -286,7 +286,7 @@ export function initializeRawMaterials(root) {
   scheduler = createAutoplayScheduler({
     onTick: () => {
       // Normally decoding (bounded at 4s) plus the 1s fade finishes before
-      // this 6s tick. A throttled browser must never overlap an active request.
+      // this 8s tick. A throttled browser must never overlap an active request.
       if (controller.busy) return;
       autoplayIndex = (autoplayIndex + 1) % ids.length;
       controller.request(ids[autoplayIndex]);
@@ -302,8 +302,8 @@ export function initializeRawMaterials(root) {
     onBusy: (busy, id) => {
       root.dataset.materialState = busy ? 'loading' : 'idle';
       root.dataset.materialTarget = id;
-      // Reset at the START, not the end: normal autoplay starts are 6000ms
-      // apart rather than accidentally becoming 6000ms + the transition.
+      // Reset at the START, not the end: normal autoplay starts are 8000ms
+      // apart rather than accidentally becoming 8000ms + the transition.
       if (busy) scheduler.reset();
     },
     onSettled: (id, { manual, changed }) => {
