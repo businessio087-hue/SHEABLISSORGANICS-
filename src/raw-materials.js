@@ -212,8 +212,20 @@ export function initializeRawMaterials(root) {
     counter.textContent = `${number(index)}/${String(ids.length).padStart(2, '0')}`;
     shop.href = materialShopHref(id);
     shop.setAttribute('aria-label', `Shop products with ${material.name}`);
-    used.setAttribute('aria-label', `Used in: show products with ${material.name}`);
     const matches = getProductsByMaterial(id);
+    const usedSymbol = used.querySelector('[data-material-used-symbol]');
+    const expandable = matches.length > 0;
+    used.disabled = !expandable;
+    used.setAttribute('aria-label', expandable
+      ? `Used in: show products with ${material.name}`
+      : `Used in: no listed products use ${material.name}`);
+    usedSymbol.hidden = !expandable;
+    if (expandable) usedSymbol.textContent = used.getAttribute('aria-expanded') === 'true' ? '⌃' : '⌄';
+    else {
+      used.setAttribute('aria-expanded', 'false');
+      usedSymbol.textContent = '';
+      products.hidden = true;
+    }
     const nextKeys = new Set(matches.map((item) => item.product));
     for (const [key, row] of productLinks) {
       if (nextKeys.has(key)) continue;
@@ -361,9 +373,10 @@ export function initializeRawMaterials(root) {
       select(ids[target]);
     });
     listen(used, 'click', () => {
+      if (used.disabled) return;
       const open = used.getAttribute('aria-expanded') !== 'true';
       used.setAttribute('aria-expanded', String(open));
-      used.querySelector('[data-material-used-symbol]').textContent = open ? '−' : '+';
+      used.querySelector('[data-material-used-symbol]').textContent = open ? '⌃' : '⌄';
       products.hidden = !open;
       scheduler.pause('details', open);
     });
