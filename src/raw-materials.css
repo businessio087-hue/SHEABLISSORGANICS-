@@ -123,6 +123,7 @@
 }
 
 .raw-materials-used-symbol { color: var(--terracotta-deep, #8f3f30); font-size: 19px; }
+.raw-materials-used-hint { color: var(--ink-soft, #5d4b42); font-size: 9px; letter-spacing: .14em; text-transform: lowercase; white-space: nowrap; }
 .raw-materials-products {
   list-style: none;
   padding: 4px 0 16px;

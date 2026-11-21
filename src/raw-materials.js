@@ -214,14 +214,16 @@ export function initializeRawMaterials(root) {
     shop.setAttribute('aria-label', `Shop products with ${material.name}`);
     const matches = getProductsByMaterial(id);
     const usedSymbol = used.querySelector('[data-material-used-symbol]');
+    const usedHint = used.querySelector('[data-material-used-hint]');
     const expandable = matches.length > 0;
     used.disabled = !expandable;
     used.setAttribute('aria-label', expandable
       ? `Used in: show products with ${material.name}`
       : `Used in: no listed products use ${material.name}`);
     usedSymbol.hidden = !expandable;
-    if (expandable) usedSymbol.textContent = used.getAttribute('aria-expanded') === 'true' ? '⌃' : '⌄';
-    else {
+    usedSymbol.textContent = expandable ? '+' : '';
+    if (usedHint) usedHint.hidden = !expandable || used.getAttribute('aria-expanded') !== 'true';
+    if (!expandable) {
       used.setAttribute('aria-expanded', 'false');
       usedSymbol.textContent = '';
       products.hidden = true;
@@ -376,7 +378,9 @@ export function initializeRawMaterials(root) {
       if (used.disabled) return;
       const open = used.getAttribute('aria-expanded') !== 'true';
       used.setAttribute('aria-expanded', String(open));
-      used.querySelector('[data-material-used-symbol]').textContent = open ? '⌃' : '⌄';
+      used.querySelector('[data-material-used-symbol]').textContent = '+';
+      const hint = used.querySelector('[data-material-used-hint]');
+      if (hint) hint.hidden = !open;
       products.hidden = !open;
       scheduler.pause('details', open);
     });
