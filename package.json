@@ -15,6 +15,7 @@
     "preview": "vite preview",
     "test:accounts": "node --test server/accounts.test.mjs tests/customer-session.test.mjs",
     "migrate:accounts": "node scripts/migrate-accounts.mjs",
+    "test:search": "node --test tests/search.test.mjs",
     "test:catalog": "node --test tests/catalog.test.mjs tests/catalog-ui.test.mjs",
     "test:materials": "node --test tests/raw-materials*.test.mjs tests/catalog-ui.test.mjs"
   },

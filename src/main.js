@@ -2,6 +2,9 @@ import './navigation.js';
 import { readBag, saveBag } from './cart-storage.js';
 import { getCustomerSession, escapeHtml } from './customer-session.js';
 import { findVariant, getProductName } from '../shared/catalog.mjs';
+import { initProductSearch } from './product-search.js';
+
+initProductSearch(document.querySelector('[data-smart-search]'));
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 

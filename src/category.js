@@ -2,6 +2,7 @@ import { CATALOG, CATEGORY_DEFINITIONS, getProductsByCategory, getProductRange, 
 import { RAW_MATERIALS, getRawMaterial } from '../shared/raw-materials.mjs';
 import './navigation.js';
 import { catalogProductCard, updateHeartButtons } from './wishlist.js';
+import { rankProducts } from './product-search.js';
 
 const params = new URLSearchParams(location.search);
 const requestedCategory = params.get('category') || 'Body';
@@ -24,8 +25,10 @@ const hasMaterial = (item, id) => !id || getProductMaterials(item).includes(id);
 // Category and ingredient memberships overlap, but each SKU appears only once.
 const categoryProducts = [...new Map((pageIsShop ? CATALOG : category ? getProductsByCategory(category) : []).map((item) => [item.product, item])).values()];
 const baseProducts = unknownMaterial ? [] : categoryProducts.filter((item) => hasMaterial(item, selectedMaterial?.id));
-const searchableText = (item) => [item.product, item.description, ...getProductCategories(item), ...getProductRanges(item), ...getProductMaterials(item).map((id) => getRawMaterial(id)?.name || id)].filter(Boolean).join(' ').toLowerCase();
-const searchedProducts = searchQuery ? baseProducts.filter((item) => searchableText(item).includes(searchQuery.toLowerCase())) : baseProducts;
+const rankedSearch = searchQuery ? rankProducts(searchQuery, baseProducts) : null;
+const searchedProducts = searchQuery
+  ? (rankedSearch.strong ? rankedSearch.results.map(({ item }) => item) : baseProducts)
+  : baseProducts;
 const productRanges = (item) => category ? [getProductRange(item, category)] : getProductRanges(item);
 const presentRanges = new Set(searchedProducts.flatMap(productRanges).filter(Boolean));
 const definedRanges = (pageIsShop ? CATEGORY_DEFINITIONS.flatMap((item) => item.subcategories) : definition?.subcategories || []).filter((range) => presentRanges.has(range));
@@ -110,6 +113,9 @@ if (selectedMaterial) {
 const summary = document.createElement('p');
 summary.className = 'catalog-results-summary';
 summary.textContent = unknownMaterial ? `Ingredient “${requestedMaterial}” is not listed.` : unknownRange ? `Product type “${requestedRange}” is not listed in this view.` : `${products.length} ${products.length === 1 ? 'product' : 'products'}${searchQuery ? ` matching “${searchQuery}”` : ''}${selectedRange ? ` / ${selectedRange}` : ''}${selectedMaterial ? ` / ${selectedMaterial.name}` : ''}`;
+if (searchQuery && rankedSearch && !rankedSearch.strong) {
+  summary.innerHTML = `Not sure what you need? Here are our most popular picks. <a href="https://wa.me/27645382348" target="_blank" rel="noopener">Ask us on WhatsApp</a>`;
+}
 container.before(summary);
 
 if (!products.length) {

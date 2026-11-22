@@ -129,9 +129,11 @@
           </div>
           <div class="heading-side">
             <p>Three quiet essentials for skin, hair, and clear-minded mornings.</p>
-            <form class="shop-search" action="/shop/" method="get" role="search">
+            <form class="shop-search" action="/shop/" method="get" role="search" data-smart-search>
               <label class="sr-only" for="shop-search-input">Search SheaBliss products</label>
-              <div class="shop-search-row"><input id="shop-search-input" name="q" type="search" placeholder="Search the full edit" autocomplete="off" /><button type="submit" aria-label="Search the full edit"><span>Search</span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.2"></circle><path d="m16 16 4.5 4.5"></path></svg></button></div>
+              <div class="shop-search-row"><input id="shop-search-input" name="q" type="search" placeholder="Try 'dry skin' or 'curly hair'" autocomplete="off" aria-describedby="shop-search-hint" /><button type="submit" aria-label="Search the full edit"><span>Search</span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.2"></circle><path d="m16 16 4.5 4.5"></path></svg></button></div>
+              <p class="shop-search-hint" id="shop-search-hint" data-search-hint>Press Enter to open the best match</p>
+              <div class="smart-search-suggestions" id="shop-search-suggestions" data-search-suggestions role="listbox" aria-label="Product suggestions" hidden></div>
             </form>
           </div>
         </div>

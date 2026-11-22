@@ -578,3 +578,43 @@ h1 span, h2 i { font-style: italic; font-weight: 300; }
   .catalog-product-facts > div { grid-template-columns: 76px minmax(0, 1fr); }
   .catalog-product-order { margin-top: 4px; }
 }
+
+
+/* Intelligent product search: editorial suggestions with thumb-friendly targets. */
+.shop-search { position: relative; z-index: 10; width: min(100%, 420px); }
+.shop-search-row { position: relative; z-index: 2; }
+.shop-search-row input { min-height: 48px; padding-right: 92px; }
+.shop-search-row input:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 3px; }
+.shop-search-hint { margin: 9px 0 0; color: var(--ink-soft); font-size: 10px; line-height: 1.4; }
+.smart-search-suggestions { position: absolute; top: calc(100% + 33px); left: 0; right: 0; max-height: min(70vh, 480px); overflow-y: auto; padding: 14px; background: var(--cream); color: var(--espresso); border: 1px solid var(--line); box-shadow: 0 18px 38px rgba(43, 29, 25, .16); }
+.smart-search-heading, .smart-search-empty-label { display: block; margin: 0 0 10px; color: var(--ink-soft); font-size: 9px; letter-spacing: .14em; text-transform: uppercase; }
+.smart-search-results { display: grid; gap: 8px; }
+.smart-search-result { position: relative; display: grid; grid-template-columns: 62px minmax(0, 1fr); align-items: center; gap: 12px; width: 100%; min-height: 72px; padding: 8px; border: 1px solid transparent; background: transparent; color: inherit; text-align: left; cursor: pointer; touch-action: manipulation; }
+.smart-search-result:hover, .smart-search-result:focus-visible { border-color: var(--terracotta); background: rgba(185, 87, 62, .08); outline: none; }
+.smart-search-result img { width: 62px; height: 62px; object-fit: cover; background: var(--sand); }
+.smart-search-result-copy { display: grid; gap: 4px; min-width: 0; padding-right: 74px; }
+.smart-search-result-copy strong { font-family: var(--serif); font-size: 19px; font-weight: 400; line-height: 1; }
+.smart-search-result-copy span, .smart-search-result-copy small { color: var(--ink-soft); font-size: 10px; line-height: 1.3; }
+.smart-search-result-copy small { letter-spacing: .08em; text-transform: uppercase; }
+.smart-search-result-best { grid-template-columns: 98px minmax(0, 1fr); min-height: 112px; padding: 10px; border-color: var(--line); background: var(--sand); }
+.smart-search-result-best img { width: 98px; height: 92px; }
+.smart-search-result-best .smart-search-result-copy strong { font-size: 24px; }
+.smart-search-best-label { position: absolute; top: 11px; right: 10px; color: var(--terracotta); font-size: 8px; letter-spacing: .12em; text-transform: uppercase; }
+.smart-search-empty { padding: 3px 0 0; }
+.smart-search-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.smart-search-chip { min-height: 42px; padding: 9px 13px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--espresso); font-size: 11px; cursor: pointer; touch-action: manipulation; }
+.smart-search-chip:hover, .smart-search-chip:focus-visible { border-color: var(--terracotta); color: var(--terracotta); outline: none; }
+.smart-search-whatsapp { display: inline-flex; min-height: 44px; align-items: center; margin-top: 12px; color: var(--terracotta); font-size: 11px; text-decoration: underline; text-underline-offset: 3px; }
+.smart-search-whatsapp:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 3px; }
+@media (max-width: 650px) {
+  .smart-search-suggestions { top: calc(100% + 31px); max-height: 64vh; padding: 12px; }
+  .smart-search-result { min-height: 78px; grid-template-columns: 68px minmax(0, 1fr); }
+  .smart-search-result img { width: 68px; height: 68px; }
+  .smart-search-result-best { grid-template-columns: 92px minmax(0, 1fr); min-height: 110px; }
+  .smart-search-result-best img { width: 92px; height: 90px; }
+  .smart-search-result-copy { padding-right: 0; }
+  .smart-search-best-label { position: static; grid-column: 2; margin-top: -7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .smart-search-result, .smart-search-chip { transition: none; }
+}
