@@ -479,10 +479,15 @@ h1 span, h2 i { font-style: italic; font-weight: 300; }
 @media (min-width: 1151px) {
   .site-header .desktop-nav { gap: clamp(16px, 1.9vw, 28px); }
 }
+@media (min-width: 651px) {
+  .site-header .desktop-nav, .site-header .menu-toggle { display: none; }
+}
 @media (max-width: 650px) {
-  .site-header { height: auto; min-height: 78px; padding-top: 12px; padding-bottom: 12px; flex-wrap: wrap; }
-  .header-search { order: 3; flex: 1 0 100%; min-width: 0; margin-top: 7px; }
-  .header-actions { gap: 10px; }
+  .site-header { height: auto; min-height: 78px; padding-top: 12px; padding-bottom: 12px; flex-wrap: nowrap; }
+  .header-search { order: 0; flex: 1 1 112px; min-width: 84px; margin-top: 0; }
+  .header-search input { font-size: 10px; }
+  .header-search button { flex-basis: 24px; width: 24px; }
+  .header-actions { gap: 8px; margin-left: auto; }
   .header-wishlist-link span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
   .brand-logo-header { width: 38px; }
   .brand-name { flex-direction: column; align-items: flex-start; gap: 0; }

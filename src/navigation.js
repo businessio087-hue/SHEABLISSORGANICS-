@@ -14,7 +14,9 @@ function addHeaderSearch() {
   form.method = 'get';
   form.innerHTML = '<label class="sr-only" for="header-search-input">Search SheaBliss products</label><input id="header-search-input" name="q" type="search" placeholder="Search rituals" autocomplete="off" /><button type="submit" aria-label="Submit search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.2"></circle><path d="m16 16 4.5 4.5"></path></svg></button>';
   const actions = header.querySelector('.header-actions');
-  header.insertBefore(form, actions || menu || null);
+  const accountLink = actions?.querySelector('[data-account-link]');
+  if (actions) actions.insertBefore(form, accountLink || actions.firstChild || null);
+  else header.insertBefore(form, menu || null);
   const query = new URLSearchParams(window.location.search).get('q')?.trim();
   if (query) form.elements.q.value = query;
 }
