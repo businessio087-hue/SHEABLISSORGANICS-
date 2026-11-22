@@ -166,7 +166,6 @@ export function initializeRawMaterials(root) {
   const copy = root.querySelector('[data-material-copy]');
   const name = root.querySelector('[data-material-name]');
   const description = root.querySelector('[data-material-description]');
-  const counter = root.querySelector('[data-material-counter]');
   const used = root.querySelector('[data-material-used]');
   const products = root.querySelector('[data-material-products]');
   const shop = root.querySelector('[data-material-shop]');
@@ -209,7 +208,6 @@ export function initializeRawMaterials(root) {
     frame.setAttribute('aria-label', material.alt);
     name.textContent = material.name;
     description.textContent = material.description;
-    counter.textContent = `${number(index)}/${String(ids.length).padStart(2, '0')}`;
     shop.href = materialShopHref(id);
     shop.setAttribute('aria-label', `Shop products with ${material.name}`);
     const matches = getProductsByMaterial(id);

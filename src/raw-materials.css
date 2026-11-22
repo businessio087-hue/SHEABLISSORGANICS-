@@ -76,13 +76,6 @@
 }
 
 .raw-materials-copy { opacity: 1; transform: translateY(0); }
-.raw-materials-counter {
-  margin: 0 0 25px;
-  font-size: 11px;
-  letter-spacing: .18em;
-  font-variant-numeric: tabular-nums;
-  color: var(--terracotta-deep, #8f3f30);
-}
 
 .raw-materials-name {
   margin: 0 0 24px;
@@ -251,6 +244,5 @@
   .raw-materials-content { padding-left: 0; }
   .raw-materials-name { font-size: clamp(42px, 9vw, 64px); }
   .raw-materials-description { max-width: 540px; font-size: 14px; }
-  .raw-materials-counter { margin-bottom: 20px; }
   .raw-materials-controls { margin-top: 24px; }
 }
