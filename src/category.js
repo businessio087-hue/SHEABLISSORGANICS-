@@ -1,4 +1,4 @@
-import { CATALOG, CATEGORY_DEFINITIONS, getProductsByCategory, getProductRange, getProductRanges, getProductMaterials } from '../shared/catalog.mjs';
+import { CATALOG, CATEGORY_DEFINITIONS, getProductsByCategory, getProductRange, getProductRanges, getProductMaterials, getProductCategories } from '../shared/catalog.mjs';
 import { RAW_MATERIALS, getRawMaterial } from '../shared/raw-materials.mjs';
 import './navigation.js';
 import { catalogProductCard, updateHeartButtons } from './wishlist.js';
@@ -7,6 +7,7 @@ const params = new URLSearchParams(location.search);
 const requestedCategory = params.get('category') || 'Body';
 const requestedRange = params.get('range') || '';
 const requestedMaterial = params.get('material') || '';
+const searchQuery = params.get('q')?.trim() || '';
 const cleanSlug = location.pathname.split('/').filter(Boolean)[0]?.toLowerCase();
 const cleanCategory = { body: 'Body', hair: 'Hair', skin: 'Skin', health: 'Health' }[cleanSlug];
 const pageIsShop = location.pathname === '/shop/' || location.pathname.endsWith('/shop.html');
@@ -23,13 +24,15 @@ const hasMaterial = (item, id) => !id || getProductMaterials(item).includes(id);
 // Category and ingredient memberships overlap, but each SKU appears only once.
 const categoryProducts = [...new Map((pageIsShop ? CATALOG : category ? getProductsByCategory(category) : []).map((item) => [item.product, item])).values()];
 const baseProducts = unknownMaterial ? [] : categoryProducts.filter((item) => hasMaterial(item, selectedMaterial?.id));
+const searchableText = (item) => [item.product, item.description, ...getProductCategories(item), ...getProductRanges(item), ...getProductMaterials(item).map((id) => getRawMaterial(id)?.name || id)].filter(Boolean).join(' ').toLowerCase();
+const searchedProducts = searchQuery ? baseProducts.filter((item) => searchableText(item).includes(searchQuery.toLowerCase())) : baseProducts;
 const productRanges = (item) => category ? [getProductRange(item, category)] : getProductRanges(item);
-const presentRanges = new Set(baseProducts.flatMap(productRanges).filter(Boolean));
+const presentRanges = new Set(searchedProducts.flatMap(productRanges).filter(Boolean));
 const definedRanges = (pageIsShop ? CATEGORY_DEFINITIONS.flatMap((item) => item.subcategories) : definition?.subcategories || []).filter((range) => presentRanges.has(range));
 const ranges = [...new Set([...definedRanges, ...presentRanges])];
 const selectedRange = ranges.find((range) => range.toLowerCase() === requestedRange.toLowerCase());
 const unknownRange = Boolean(requestedRange && !selectedRange);
-const products = unknownRange || unknownMaterial ? [] : selectedRange ? baseProducts.filter((item) => productRanges(item).includes(selectedRange)) : baseProducts;
+const products = unknownRange || unknownMaterial ? [] : selectedRange ? searchedProducts.filter((item) => productRanges(item).includes(selectedRange)) : searchedProducts;
 
 function catalogHref(categoryName = null, range = '', material = selectedMaterial?.id || '') {
   const query = new URLSearchParams();
@@ -43,8 +46,8 @@ function navigationLink(text, href, current = false) {
   return `<a href="${escapeHtml(href)}"${current ? ' aria-current="page"' : ''}>${escapeHtml(text)}</a>`;
 }
 
-const activeFilter = Boolean(requestedRange || requestedMaterial);
-document.title = `${selectedMaterial ? `${selectedMaterial.name} — ` : ''}${selectedRange ? `${selectedRange} — ` : ''}${label} — SHEABLISS ORGANICS`;
+const activeFilter = Boolean(requestedRange || requestedMaterial || searchQuery);
+document.title = `${searchQuery ? `Search: ${searchQuery} — ` : ''}${selectedMaterial ? `${selectedMaterial.name} — ` : ''}${selectedRange ? `${selectedRange} — ` : ''}${label} — SHEABLISS ORGANICS`;
 document.querySelector('#category-title').textContent = label;
 document.querySelector('#category-description').textContent = description;
 document.querySelector('meta[name="description"]').content = `${label} — ${selectedMaterial ? `${selectedMaterial.name}. ` : ''}${description}`;
@@ -106,14 +109,14 @@ if (selectedMaterial) {
 }
 const summary = document.createElement('p');
 summary.className = 'catalog-results-summary';
-summary.textContent = unknownMaterial ? `Ingredient “${requestedMaterial}” is not listed.` : unknownRange ? `Product type “${requestedRange}” is not listed in this view.` : `${products.length} ${products.length === 1 ? 'product' : 'products'}${selectedRange ? ` / ${selectedRange}` : ''}${selectedMaterial ? ` / ${selectedMaterial.name}` : ''}`;
+summary.textContent = unknownMaterial ? `Ingredient “${requestedMaterial}” is not listed.` : unknownRange ? `Product type “${requestedRange}” is not listed in this view.` : `${products.length} ${products.length === 1 ? 'product' : 'products'}${searchQuery ? ` matching “${searchQuery}”` : ''}${selectedRange ? ` / ${selectedRange}` : ''}${selectedMaterial ? ` / ${selectedMaterial.name}` : ''}`;
 container.before(summary);
 
 if (!products.length) {
   container.classList.add('category-empty');
   const invalid = unknownRange || unknownMaterial;
-  const title = unknownMaterial ? 'This ingredient is not listed.' : unknownRange ? 'This product type is not listed here.' : 'No products match this selection.';
-  const note = invalid ? 'Choose a listed ingredient or product type, or reset the filter to see the collection.' : 'Try another ingredient, product type or category.';
+  const title = unknownMaterial ? 'This ingredient is not listed.' : unknownRange ? 'This product type is not listed here.' : searchQuery ? `No rituals match “${searchQuery}”.` : 'No products match this selection.';
+  const note = invalid ? 'Choose a listed ingredient or product type, or reset the filter to see the collection.' : searchQuery ? 'Try another search, or explore the complete collection.' : 'Try another ingredient, product type or category.';
   const reset = invalid ? catalogHref(category) : catalogHref(category, '', '');
   container.innerHTML = `<div class="category-empty-note"><h2>${title}</h2><p>${note}</p><a class="line-link" href="${escapeHtml(reset)}">${invalid ? 'All products — reset filter' : 'Explore the collection'}</a></div>`;
 } else {

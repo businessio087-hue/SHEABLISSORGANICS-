@@ -150,6 +150,15 @@ h1 span, h2 i { font-style: italic; font-weight: 300; }
 .section-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; border-bottom: 1px solid var(--line); padding-bottom: 42px; margin-bottom: 55px; }
 .section-heading h2 { margin: 0; }
 .heading-side { max-width: 190px; color: var(--ink-soft); font-size: 13px; line-height: 1.35; padding-bottom: 7px; }
+.heading-side > p { margin: 0; }
+.shop-search { margin-top: 20px; width: min(100%, 250px); }
+.shop-search-row { display: flex; align-items: center; border-bottom: 1px solid var(--espresso); }
+.shop-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--espresso); padding: 9px 4px 9px 0; font-size: 12px; }
+.shop-search input::placeholder { color: var(--ink-soft); opacity: .8; }
+.shop-search input:focus-visible { box-shadow: 0 2px 0 var(--terracotta); }
+.shop-search button { display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto; border: 0; background: transparent; color: var(--espresso); padding: 8px 0 8px 8px; text-transform: uppercase; letter-spacing: .13em; font-size: 9px; }
+.shop-search button:hover, .shop-search button:focus-visible { color: var(--terracotta); }
+.shop-search svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
 .shop-layout { display: block; }
 .products-grid { display: flex; gap: 24px; overflow-x: auto; overscroll-behavior-inline: contain; scroll-snap-type: x proximity; cursor: grab; scrollbar-width: none; padding: 4px 4px 18px; }
 .products-grid::-webkit-scrollbar { display: none; }
@@ -303,7 +312,7 @@ h1 span, h2 i { font-style: italic; font-weight: 300; }
   .hero { min-height: 79vh; padding: 44px 20px 54px; }.hero-media { inset: -4%; }.hero-copy h1 { font-size: clamp(74px, 21vw, 130px); }.hero-intro { max-width: 240px; margin: 0 0 34px 3px; }.hero-stamp { top: 18%; right: 14px; }
   .story { grid-template-columns: 1fr; gap: 42px; padding: 90px 20px 105px; }.story-intro { padding-top: 0; }.story-image-wrap { width: 88%; margin-left: auto; }.story-aside { grid-column: auto; margin-top: 4px; }
   .video-break { grid-template-columns: 1fr; gap: 46px; padding: 82px 20px 90px; }.video-frame video { aspect-ratio: 4 / 3; }
-  .shop { padding: 90px 20px 110px; }.section-heading { display: block; padding-bottom: 28px; margin-bottom: 35px; }.heading-side { margin-top: 25px; }.products-grid { gap: 12px; }.product-card { min-height: 310px; padding: 16px 14px 15px; }.product-card::after { inset: 8px; }.product-index { top: 16px; left: 14px; font-size: 8px; }.product-object-jar { transform: scale(.78); margin-bottom: 13px; }.product-object-bottle { transform: scale(.75); margin-bottom: 5px; }.product-object-tin { transform: scale(.77); margin-bottom: 18px; }.product-object-bowl { transform: scale(.77); margin-bottom: 18px; }.product-meta { display: block; }.product-meta h3 { font-size: 17px; margin-bottom: 4px; }.product-meta span { font-size: 10px; }.add-button { font-size: 8px; }
+  .shop { padding: 90px 20px 110px; }.section-heading { display: block; padding-bottom: 28px; margin-bottom: 35px; }.heading-side { margin-top: 25px; max-width: 280px; }.shop-search { width: 100%; }.products-grid { gap: 12px; }.product-card { min-height: 310px; padding: 16px 14px 15px; }.product-card::after { inset: 8px; }.product-index { top: 16px; left: 14px; font-size: 8px; }.product-object-jar { transform: scale(.78); margin-bottom: 13px; }.product-object-bottle { transform: scale(.75); margin-bottom: 5px; }.product-object-tin { transform: scale(.77); margin-bottom: 18px; }.product-object-bowl { transform: scale(.77); margin-bottom: 18px; }.product-meta { display: block; }.product-meta h3 { font-size: 17px; margin-bottom: 4px; }.product-meta span { font-size: 10px; }.add-button { font-size: 8px; }
   .ingredients { padding: 90px 20px 28px; }.ingredients-head { display: block; }.ingredients-head h2 { margin-bottom: 56px; }.ingredient { padding: 22px 15px 28px 0; min-height: 245px; }.ingredient + .ingredient { padding-left: 15px; }.ingredient-icon { width: 43px; height: 43px; margin-bottom: 29px; font-size: 21px; }.ingredient h3 { font-size: 24px; }.ingredient p { font-size: 12px; }.ingredient-num { top: 27px; right: 11px; }
   .lookbook { padding: 90px 20px 105px; }.lookbook-head { display: block; margin-bottom: 55px; }.lookbook-head > p:last-child { margin-top: 25px; }.lookbook-grid { grid-template-columns: 1fr 1fr; gap: 14px; }.figure-portrait, .figure-raffia, .figure-iteso, .figure-mat { padding-top: 0; padding-bottom: 0; }.lookbook-pullquote { grid-column: 1 / -1; padding: 40px 0 0; }
   .testimonials { padding: 80px 20px 90px; }.testimonials-head { display: block; padding-bottom: 30px; }.testimonial-grid { grid-template-columns: 1fr; gap: 12px; }.testimonial { min-height: 180px; }
