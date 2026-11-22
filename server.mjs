@@ -31,6 +31,8 @@ const sendStatic = async (req, res) => {
   }
   let filePath = candidate;
   try {
+    const stats = await fs.stat(filePath);
+    if (stats.isDirectory()) filePath = path.join(filePath, 'index.html');
     await fs.access(filePath);
   } catch {
     if (requestPath.startsWith('/api/')) {

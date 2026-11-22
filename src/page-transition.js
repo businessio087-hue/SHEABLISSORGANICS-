@@ -43,7 +43,7 @@ if (!nativePageTransitions) {
   document.addEventListener('click', (event) => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     const link = event.target instanceof Element ? event.target.closest('a[href]') : null;
-    if (!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
+    if (!link || link.closest('.site-menu') || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
     const destination = new URL(link.href, location.href);
     if (destination.origin !== location.origin || !['http:', 'https:'].includes(destination.protocol)) return;
     if (destination.pathname === location.pathname && destination.search === location.search) return;

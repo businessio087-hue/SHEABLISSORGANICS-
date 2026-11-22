@@ -13,13 +13,15 @@ function setMenuOpen(open) {
   menu.hidden = !open;
 }
 
-toggle?.addEventListener('click', () => setMenuOpen(menu?.hidden === true));
+toggle?.addEventListener('click', () => setMenuOpen(toggle.getAttribute('aria-expanded') !== 'true'));
 header?.querySelectorAll('nav a').forEach((link) => {
   const destination = new URL(link.href);
   if (destination.pathname === location.pathname && destination.search === location.search) {
     link.setAttribute('aria-current', 'page');
   }
-  link.addEventListener('click', () => setMenuOpen(false));
+});
+menu?.addEventListener('click', (event) => {
+  if (event.target instanceof Element && event.target.closest('a[href]')) setMenuOpen(false);
 });
 
 document.addEventListener('click', (event) => {
@@ -30,10 +32,5 @@ document.addEventListener('keydown', (event) => {
     setMenuOpen(false);
     toggle?.focus();
   }
-});
-header?.addEventListener('focusout', () => {
-  queueMicrotask(() => {
-    if (!header.contains(document.activeElement)) setMenuOpen(false);
-  });
 });
 window.addEventListener('pageshow', () => setMenuOpen(false));
